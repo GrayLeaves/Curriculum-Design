@@ -5,4 +5,4 @@
 2	通过文件浏览器或屏幕截图导入外源图片并记录打开历史，支持简单的数字图像处理操作。<br>
 3	使用OpenCV图像处理和CaffeLSTM-OCR文本识别工具。<br>
 4	涉及Qt的用户图形界面设计，通信模型，Graphics/View视图框架和事件机制。<br>
-5 参考书籍《Qt5开发及实例》和CaffeLSTM-OCR项目https://github.com/dlunion/CaffeLSTM-OCR<br>
+5 参考书籍《Qt5开发及实例》和[CaffeLSTM-OCR项目](https://github.com/dlunion/CaffeLSTM-OCR)<br>
