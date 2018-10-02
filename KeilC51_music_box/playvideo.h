@@ -1,30 +1,12 @@
 
-/*ËµÃ÷**************************************************************************
- ÇúÆ×´æÖü¸ñÊ½ uchar code MusicName{Òô¸ß£¬Òô³¤£¬Òô¸ß£¬Òô³¤...., 0xff,0xff};Ä©Î²±íÊ¾½áÊø
- Òô¸ßÓÉÈıÎ»Êı×Ö×é³É£º
- 		¸öÎ»ÊÇ±íÊ¾ 1~7 ÕâÆß¸öÒô·û 
- 		Ê®Î»ÊÇ±íÊ¾Òô·ûËùÔÚµÄÒôÇø:1-µÍÒô£¬2-ÖĞÒô£¬3-¸ßÒô;
- 		°ÙÎ»±íÊ¾Õâ¸öÒô·ûÊÇ·ñÒªÉı°ëÒô: 0-²»Éı£¬1-Éı°ëÒô¡£
-    Òô³¤×î¶àÓÉÈıÎ»Êı×Ö×é³É£º 
- 		¸öÎ»±íÊ¾Òô·ûµÄÊ±Öµ£¬Æä¶ÔÓ¦¹ØÏµÊÇ£º 
- 			|ÊıÖµ(n):  |0 |1 |2 |3 | 4 | 5 | 6 
- 			|¼¸·ÖÒô·û: |1 |2 |4 |8 |16 |32 |64 		Òô·û=2^n
- 		Ê®Î»±íÊ¾Òô·ûµÄÑİ×àĞ§¹û(0-2):  0-ÆÕÍ¨£¬1-Á¬Òô£¬2-¶ÙÒô
- 		°ÙÎ»ÊÇ·ûµãÎ»: 0-ÎŞ·ûµã£¬1-ÓĞ·ûµã
- µ÷ÓÃÑİ×à×Ó³ÌĞòµÄ¸ñÊ½
- Play(ÀÖÇúºÅ,µ÷ºÅ,Éı½µ°Ë¶È,Ñİ×àËÙ¶È);
-	|ÀÖÇúºÅ           : Òª²¥·ÅµÄÀÖÇúÖ¸Õë,½áÎ²ÒÔ(0xff,0xff)½áÊø;
-	|µ÷ºÅ(0-11)       :	ÊÇÖ¸ÀÖÇúÉı¶àÉÙ¸ö°ëÒôÑİ×à;
-	|Éı½µ°Ë¶È(1-3)	  : 1:½µ°Ë¶È, 2:²»Éı²»½µ, 3:Éı°Ë¶È;
-	|Ñİ×àËÙ¶È(1-12000):	ÖµÔ½´óËÙ¶ÈÔ½¿ì;
-*******************************************************************************/
+//*******************************************************************************//
 #ifndef __playvideo_h_REVISION_FIRST__
 #define __playvideo_h_REVISION_FIRST__
 //****************************************************************************//
 #include "Global.h"
 #include "lcd.h"
 
-//---ÖØ¶¨Òå¹Ø¼ü´Ê---//
+//---é‡å®šä¹‰å…³é”®è¯---//
 #ifndef uchar
 #define uchar unsigned char
 #endif
@@ -34,34 +16,34 @@
 #ifndef ulong
 #define ulong unsigned long
 
-#define N 3 //×Ü¹²3Ê×
+#define N 3 //æ€»å…±3é¦–
 
 //*****************************************************************************//
-#define OSC 		12000000	      //¶¨Òå¾§ÕñÆµÂÊ12MHZ
-#define SOUND_SPACE 	4/5 	    //¶¨ÒåÆÕÍ¨Òô·ûÑİ×àµÄ³¤¶È·ÖÂÊ,//Ã¿4·ÖÒô·û¼ä¸ô
-//****************************ºìÍâÄ£¿é¶¨ÒåÇø¼ä*********************************//
+#define OSC 		12000000	      //å®šä¹‰æ™¶æŒ¯é¢‘ç‡12MHZ
+#define SOUND_SPACE 	4/5 	    //å®šä¹‰æ™®é€šéŸ³ç¬¦æ¼”å¥çš„é•¿åº¦åˆ†ç‡,//æ¯4åˆ†éŸ³ç¬¦é—´éš”
+//****************************çº¢å¤–æ¨¡å—å®šä¹‰åŒºé—´*********************************//
 sbit IRIN=P3^2;
-uchar IrValue[6];          //´æ¶ÁÈ¡µ½µÄÊı¾İ
+uchar IrValue[6];          //å­˜è¯»å–åˆ°çš„æ•°æ®
 uchar Time;
 bit Next=0;
 //*****************************************************************
-bit Status=1;                            //0,ÔİÍ£,1,ÔËĞĞ
-bit IsMusic=0;                           //ÊÇ·ñ·Å¸èÖĞ,¿ØÖÆT0·Å¸èµÄÑ¡ÔñÏî
-char musicNum;                           //ÇúÄ¿ĞòÊı(¿É¸º)
-uint  code FreTab[12]  = { 262,277,294,311,330,349,369,392,415,440,466,494 }; //1-7µÍÒôÔ­Ê¼ÆµÂÊ±í
-uchar code SignTab[7]  = { 0,2,4,5,7,9,11 }; 								  //1~7ÔÚÆµÂÊ±íÖĞµÄÎ»ÖÃ
+bit Status=1;                            //0,æš‚åœ,1,è¿è¡Œ
+bit IsMusic=0;                           //æ˜¯å¦æ”¾æ­Œä¸­,æ§åˆ¶T0æ”¾æ­Œçš„é€‰æ‹©é¡¹
+char musicNum;                           //æ›²ç›®åºæ•°(å¯è´Ÿ)
+uint  code FreTab[12]  = { 262,277,294,311,330,349,369,392,415,440,466,494 }; //1-7ä½éŸ³åŸå§‹é¢‘ç‡è¡¨
+uchar code SignTab[7]  = { 0,2,4,5,7,9,11 }; 								  //1~7åœ¨é¢‘ç‡è¡¨ä¸­çš„ä½ç½®
 uchar code LengthTab[7]= { 1,2,4,8,16,32,64 };						
-uchar Sound_Temp_TH0,Sound_Temp_TL0;	//Òô·û¶¨Ê±Æ÷³õÖµÔİ´æ 
-uchar Sound_Temp_TH1,Sound_Temp_TL1;	//Òô³¤¶¨Ê±Æ÷³õÖµÔİ´æ
-//*******************º¯ÊıÁĞ±í*************************
-void Initial(void);//³õÊ¼»¯ÒôÀÖ
-void BeepT0(void);//Òô·ûÖĞ¶Ï
-void Playvideo(uchar num,uchar Signature,uchar Octachord,uint Speed);//·ÅÒôÀÖ
+uchar Sound_Temp_TH0,Sound_Temp_TL0;	//éŸ³ç¬¦å®šæ—¶å™¨åˆå€¼æš‚å­˜ 
+uchar Sound_Temp_TH1,Sound_Temp_TL1;	//éŸ³é•¿å®šæ—¶å™¨åˆå€¼æš‚å­˜
+//*******************å‡½æ•°åˆ—è¡¨*************************
+void Initial(void);//åˆå§‹åŒ–éŸ³ä¹
+void BeepT0(void);//éŸ³ç¬¦ä¸­æ–­
+void Playvideo(uchar num,uchar Signature,uchar Octachord,uint Speed);//æ”¾éŸ³ä¹
 void UDshow(uchar number);
-//******************¶Ë¿ÚÎ»¶¨Òå*************************
-sbit BeepIO=P3^7;		     //²¥·ÅÒôÀÖÊä³ö¹Ü½Å
-//******************ÄÚÖÃÊı¾İ***************************
-uchar code Music_hzcb[]={//»Ó×Å³á°òµÄÅ®º¢
+//******************ç«¯å£ä½å®šä¹‰*************************
+sbit BeepIO=P3^7;		     //æ’­æ”¾éŸ³ä¹è¾“å‡ºç®¡è„š
+//******************å†…ç½®æ•°æ®***************************
+uchar code Music_hzcb[]={//æŒ¥ç€ç¿…è†€çš„å¥³å­©
    0x17,0x02, 0x17,0x03, 0x18,0x03, 0x19,0x02, 0x15,0x03,
    0x16,0x03, 0x17,0x03, 0x17,0x03, 0x17,0x02, 0x18,0x03,
    0x19,0x02, 0x16,0x03, 0x17,0x03, 0x18,0x02, 0x18,0x03,
@@ -100,7 +82,7 @@ uchar code Music_hzcb[]={//»Ó×Å³á°òµÄÅ®º¢
    0x18,0x66, 0x16,0x02, 0x17,0x02, 0x15,0x00, 0xff,0xff
                                };
 
-uchar code Music_tyshg[]={ //Í¬Ò»Ê×¸è
+uchar code Music_tyshg[]={ //åŒä¸€é¦–æ­Œ
   0x0F,0x01, 0x15,0x02, 0x16,0x02, 0x17,0x66, 0x18,0x03,
   0x17,0x02, 0x15,0x02, 0x16,0x01, 0x15,0x02, 0x10,0x02,
   0x15,0x00, 0x0F,0x01, 0x15,0x02, 0x16,0x02, 0x17,0x02,
@@ -122,10 +104,10 @@ uchar code Music_tyshg[]={ //Í¬Ò»Ê×¸è
   0x10,0x01, 0x11,0x01, 0x11,0x66, 0x10,0x03, 0x0F,0x0C,
   0x1A,0x02, 0x19,0x02, 0x16,0x03, 0x16,0x03, 0x18,0x66,
   0x18,0x03, 0x18,0x02, 0x17,0x03, 0x16,0x03, 0x19,0x00,
-  0xff,0xff  //0xffĞİÖ¹·ûºÅ
+  0xff,0xff  //0xffä¼‘æ­¢ç¬¦å·
                          };
 
-uchar code Music_lzhd[]={  //Á½Ö»ºûµû
+uchar code Music_lzhd[]={  //ä¸¤åªè´è¶
   0x17,0x03, 0x16,0x03, 0x17,0x01, 0x16,0x03, 0x17,0x03,
   0x16,0x03, 0x15,0x01, 0x10,0x03, 0x15,0x03, 0x16,0x02,
   0x16,0x0D, 0x17,0x03, 0x16,0x03, 0x15,0x03, 0x10,0x03,
@@ -160,26 +142,26 @@ uchar code Music_lzhd[]={  //Á½Ö»ºûµû
   0x1A,0x03, 0x19,0x03, 0x17,0x03, 0x16,0x03, 0x0F,0x02,
   0x10,0x03, 0x15,0x00, 0xff,0xff
                               };
-uchar *Sound[N]={Music_hzcb,Music_tyshg,Music_lzhd};          //Ö¸Ïò¸èÇúÊı×éµÄÖ¸Õë,¿ÉÎªmusic.Name[N]
-uchar *MusicName[N]={"hzcb ","tyshg","lzhd "};                //¸èÇúÃû×Ö,³¤¶ÈÎª5,LCD1602ÏÔÊ¾ÓÃ
-//uint SoundLength[N];                                        //¶ÔÓ¦¸èÇúµÄ³¤¶È,¿ÉÎªmusic.Len[N]
-uint Point=0;                                                 //²¥·ÅÒô·ûµÄÎ»ÖÃ,ÇåÁã				
+uchar *Sound[N]={Music_hzcb,Music_tyshg,Music_lzhd};          //æŒ‡å‘æ­Œæ›²æ•°ç»„çš„æŒ‡é’ˆ,å¯ä¸ºmusic.Name[N]
+uchar *MusicName[N]={"hzcb ","tyshg","lzhd "};                //æ­Œæ›²åå­—,é•¿åº¦ä¸º5,LCD1602æ˜¾ç¤ºç”¨
+//uint SoundLength[N];                                        //å¯¹åº”æ­Œæ›²çš„é•¿åº¦,å¯ä¸ºmusic.Len[N]
+uint Point=0;                                                 //æ’­æ”¾éŸ³ç¬¦çš„ä½ç½®,æ¸…é›¶				
 
 //****************************************************************
 void Initial(void)
 {
 	BeepIO = 0;
-	Sound_Temp_TH1 = (65535-(1/1200)*OSC)/256;	// ¼ÆËãTL1Ó¦×°ÈëµÄ³õÖµ 	(10msµÄ³õ×°Öµ)
-	Sound_Temp_TL1 = (65535-(1/1200)*OSC)%256;	// ¼ÆËãTH1Ó¦×°ÈëµÄ³õÖµ 
+	Sound_Temp_TH1 = (65535-(1/1200)*OSC)/256;	// è®¡ç®—TL1åº”è£…å…¥çš„åˆå€¼ 	(10msçš„åˆè£…å€¼)
+	Sound_Temp_TL1 = (65535-(1/1200)*OSC)%256;	// è®¡ç®—TH1åº”è£…å…¥çš„åˆå€¼ 
 	TH1 = Sound_Temp_TH1;
 	TL1 = Sound_Temp_TL1;
-	TR1 = 1;                                    //--- Æô¶¯¶¨Ê±Æ÷T1 ---
-  ET1 = 0;                                    //--- ¹Ø±Õ¶¨Ê±Æ÷T1Òç³öÖĞ¶ÏÔ´---
-  IT1 = 1;                                    //--- INT1Íâ²¿ÖĞ¶ÏÔ´ÏÂ½µÑØ´¥·¢ ---
-  EX1 = 1;                                    //--- Ê¹ÄÜINT1Íâ²¿ÖĞ¶ÏÔ´ ---
-  PT1 = 1;                                    //--- ÔÊĞíT1¸ßÓÅÏÈ¼¶ÖĞ¶Ï ---
+	TR1 = 1;                                    //--- å¯åŠ¨å®šæ—¶å™¨T1 ---
+  ET1 = 0;                                    //--- å…³é—­å®šæ—¶å™¨T1æº¢å‡ºä¸­æ–­æº---
+  IT1 = 1;                                    //--- INT1å¤–éƒ¨ä¸­æ–­æºä¸‹é™æ²¿è§¦å‘ ---
+  EX1 = 1;                                    //--- ä½¿èƒ½INT1å¤–éƒ¨ä¸­æ–­æº ---
+  PT1 = 1;                                    //--- å…è®¸T1é«˜ä¼˜å…ˆçº§ä¸­æ–­ ---
 }
-//*****************************·Å¸è×´Ì¬ÏÔÊ¾º¯Êı****************************
+//*****************************æ”¾æ­ŒçŠ¶æ€æ˜¾ç¤ºå‡½æ•°****************************
 void UDshow(uchar number)
 {
 	uchar up,down;
@@ -203,23 +185,23 @@ void UDshow(uchar number)
 	 delayms(10);
 	 LcdShowStr(10,0,MusicName[down]);
 }
-//******Íâ²¿ÖĞ¶ÏÔ´INT1µÄÖĞ¶Ï·şÎñ³ÌĞò£¬Ñ¡²¥ÏÂÒ»Çú°´¼ü²Ù×÷£¬¿ÉÊ¹ÒôÀÖĞòÊıÔöÒ»***************
-void Int1(void ) interrupt 2                                      //ÑÓ³ÙÔ¼0.5s
+//******å¤–éƒ¨ä¸­æ–­æºINT1çš„ä¸­æ–­æœåŠ¡ç¨‹åºï¼Œé€‰æ’­ä¸‹ä¸€æ›²æŒ‰é”®æ“ä½œï¼Œå¯ä½¿éŸ³ä¹åºæ•°å¢ä¸€***************
+void Int1(void ) interrupt 2                                      //å»¶è¿Ÿçº¦0.5s
 {
-    EX1 = 0;                                                      //½ûÖ¹INT1ÖĞ¶ÏÔ´
+    EX1 = 0;                                                      //ç¦æ­¢INT1ä¸­æ–­æº
 	  if(IsMusic)
 		{
-      musicNum++;                                                 //ÏÂÒ»Çú
-      if(N==musicNum)musicNum=0;                                  //µ½´ï×î´óĞòÊı¹éÁã,Ñ­»·Ñ¡Çú
-      while(0 == INT1);                                       		//µÈ´ı°´¼üÊÍ·Å
-	    Point=0;                                                   	//Òô·ûÎ»ÖÃÇåÁã
+      musicNum++;                                                 //ä¸‹ä¸€æ›²
+      if(N==musicNum)musicNum=0;                                  //åˆ°è¾¾æœ€å¤§åºæ•°å½’é›¶,å¾ªç¯é€‰æ›²
+      while(0 == INT1);                                       		//ç­‰å¾…æŒ‰é”®é‡Šæ”¾
+	    Point=0;                                                   	//éŸ³ç¬¦ä½ç½®æ¸…é›¶
 			Next=1;
 		}
-    EX1 = 1;                                                      //Ê¹ÄÜINT1ÖĞ¶ÏÔ´
-    IE1 = 0;                                                      //ÇåÖĞ¶Ï±êÖ¾ 
+    EX1 = 1;                                                      //ä½¿èƒ½INT1ä¸­æ–­æº
+    IE1 = 0;                                                      //æ¸…ä¸­æ–­æ ‡å¿— 
 }
-//**********************µç×ÓÇÙºÍÒôÀÖºĞ·¢ÉùÆ÷***********************************
-void BeepT0(void) interrupt 1                                   	//Òô·û·¢ÉúÖĞ¶Ï
+//**********************ç”µå­ç´å’ŒéŸ³ä¹ç›’å‘å£°å™¨***********************************
+void BeepT0(void) interrupt 1                                   	//éŸ³ç¬¦å‘ç”Ÿä¸­æ–­
 {
 	if(IsMusic)
 	 {
@@ -229,33 +211,33 @@ void BeepT0(void) interrupt 1                                   	//Òô·û·¢ÉúÖĞ¶Ï
 	 else
 	 {
 		 TH0 = (Tonetab[ALL])/256;
-     TL0 = (Tonetab[ALL])%256;       //ÖØ×°Öµ
+     TL0 = (Tonetab[ALL])%256;       //é‡è£…å€¼
    }
 	 BeepIO = !BeepIO;
 }
-//***************************Ö÷·Å¸è´¦Àíº¯Êı*********************************
+//***************************ä¸»æ”¾æ­Œå¤„ç†å‡½æ•°*********************************
 void Playvideo(uchar num,uchar Signature,uchar Octachord,uint Speed)
 {
 	uint LDiv,LDiv0,LDiv1,LDiv2,LDiv4,CurrentFre,Temp_T;
   uchar Tone,Length,SL,SH,SM,SLen,XG,FD;
-	uint NewFreTab[12];													//ĞÂµÄÆµÂÊ±í
+	uint NewFreTab[12];													//æ–°çš„é¢‘ç‡è¡¨
 	
 	IsMusic=1;
 	BeepIO=0;
-	Status=1;                                   //Ä¬ÈÏÊÇ¿É²¥·Å,³õÊ¼»¯
-	musicNum=num%N;                             //×ÔÑ¡¸èÇú×÷ÎªÆğÊ¼                     
-	ET1=0;                                      //·ÀÖ¹´¥·¢100HzµÄÒôµ÷
-	LcdShowStr(0,0,udstr);                      //ÏÔÊ¾µ±Ç°¸èÇúÉÏÏÂÇúÃûÃæ°å
+	Status=1;                                   //é»˜è®¤æ˜¯å¯æ’­æ”¾,åˆå§‹åŒ–
+	musicNum=num%N;                             //è‡ªé€‰æ­Œæ›²ä½œä¸ºèµ·å§‹                     
+	ET1=0;                                      //é˜²æ­¢è§¦å‘100Hzçš„éŸ³è°ƒ
+	LcdShowStr(0,0,udstr);                      //æ˜¾ç¤ºå½“å‰æ­Œæ›²ä¸Šä¸‹æ›²åé¢æ¿
 	delayms(10);
-	UDshow(musicNum);                           //ÏÔÊ¾ÉÏÏÂÇúÃû
+	UDshow(musicNum);                           //æ˜¾ç¤ºä¸Šä¸‹æ›²å
 	delayms(10);
-	LcdShowStr(0,1,Playing);                    //ÏÔÊ¾µ±Ç°·Å¸èÃæ°å
+	LcdShowStr(0,1,Playing);                    //æ˜¾ç¤ºå½“å‰æ”¾æ­Œé¢æ¿
 	delayms(10);
-	DisplayOneChar(0,1,ASCII[musicNum]);        //ÏÔÊ¾µ±Ç°¸èÇúĞòºÅ
+	DisplayOneChar(0,1,ASCII[musicNum]);        //æ˜¾ç¤ºå½“å‰æ­Œæ›²åºå·
 	delayms(10);
-	LcdShowStr(2,1,MusicName[musicNum]);        //ÏÔÊ¾µ±Ç°¸èÇúÃû
+	LcdShowStr(2,1,MusicName[musicNum]);        //æ˜¾ç¤ºå½“å‰æ­Œæ›²å
 	
-	for(i=0;i<12;i++) 	                  			// ¸ù¾İµ÷ºÅ¼°Éı½µ°Ë¶ÈÀ´Éú³ÉĞÂµÄÆµÂÊ±í 
+	for(i=0;i<12;i++) 	                  			// æ ¹æ®è°ƒå·åŠå‡é™å…«åº¦æ¥ç”Ÿæˆæ–°çš„é¢‘ç‡è¡¨ 
 	 {
 		j = i + Signature;
 		if(j > 11)
@@ -274,31 +256,31 @@ void Playvideo(uchar num,uchar Signature,uchar Octachord,uint Speed)
 /*	for(i=0;i<N;i++)
 	{
 		SoundLength[i] = 0;
-	  while(Sound[i][SoundLength[i]] != 0xff)	//¼ÆËã¸èÇú³¤¶È
+	  while(Sound[i][SoundLength[i]] != 0xff)	//è®¡ç®—æ­Œæ›²é•¿åº¦
 	   {
 		  SoundLength[i]+=2;
 	   }
   }*/
-	   Point = 0;                          //Òô·ûÊ×¸öÎ»ÖÃ
+	   Point = 0;                          //éŸ³ç¬¦é¦–ä¸ªä½ç½®
 	   Tone   = Sound[musicNum][Point];	
-	   Length = Sound[musicNum][Point+1];  // ¶Á³öµÚÒ»¸öÒô·ûºÍËüÊ±Ê±Öµ
-	   LDiv0 = 12000/Speed;				         // Ëã³ö1·ÖÒô·ûµÄ³¤¶È(¼¸¸ö10ms) 	
-	   LDiv4 = LDiv0/4; 					         // Ëã³ö4·ÖÒô·ûµÄ³¤¶È 
-	   LDiv4 = LDiv4-LDiv4*SOUND_SPACE; 	 // ÆÕÍ¨Òô×î³¤¼ä¸ô±ê×¼ 
-	   TR0	 = 0;                          // ¹Ø±Õ·¢Òô
-     TR1   = 1;                          // ÑÓÊ±10ms
+	   Length = Sound[musicNum][Point+1];  // è¯»å‡ºç¬¬ä¸€ä¸ªéŸ³ç¬¦å’Œå®ƒæ—¶æ—¶å€¼
+	   LDiv0 = 12000/Speed;				         // ç®—å‡º1åˆ†éŸ³ç¬¦çš„é•¿åº¦(å‡ ä¸ª10ms) 	
+	   LDiv4 = LDiv0/4; 					         // ç®—å‡º4åˆ†éŸ³ç¬¦çš„é•¿åº¦ 
+	   LDiv4 = LDiv4-LDiv4*SOUND_SPACE; 	 // æ™®é€šéŸ³æœ€é•¿é—´éš”æ ‡å‡† 
+	   TR0	 = 0;                          // å…³é—­å‘éŸ³
+     TR1   = 1;                          // å»¶æ—¶10ms
 	
-	   while(Sound[musicNum][Point]!=0xff) //ÊÇ·ñ³¬³öÒôÀÖÊı×éÓĞĞ§±ß½ç
+	   while(Sound[musicNum][Point]!=0xff) //æ˜¯å¦è¶…å‡ºéŸ³ä¹æ•°ç»„æœ‰æ•ˆè¾¹ç•Œ
 	     {
-				 if(Next)                        //¸Õ´ÓÖĞ¶ÏÖĞ»ØÀ´²»¾Ã
+				 if(Next)                        //åˆšä»ä¸­æ–­ä¸­å›æ¥ä¸ä¹…
 				  {
 						Next=0;
-				 		UDshow(musicNum);            //ÏÔÊ¾ÉÏÏÂÇúÃû
-						DisplayOneChar(0,1,ASCII[musicNum]);//ÏÔÊ¾¸èÇúĞòºÅ
+				 		UDshow(musicNum);            //æ˜¾ç¤ºä¸Šä¸‹æ›²å
+						DisplayOneChar(0,1,ASCII[musicNum]);//æ˜¾ç¤ºæ­Œæ›²åºå·
 						delayms(10);
-		        LcdShowStr(2,1,MusicName[musicNum]);//ÏÔÊ¾¸èÇúÃû
+		        LcdShowStr(2,1,MusicName[musicNum]);//æ˜¾ç¤ºæ­Œæ›²å
 				  }
-        //******************ÔİÍ£/Ğø²¥×ª»»³ÌĞò**********************
+        //******************æš‚åœ/ç»­æ’­è½¬æ¢ç¨‹åº**********************
 				 if(K2==0)			
 	        {
 		        delayms(10);
@@ -308,65 +290,65 @@ void Playvideo(uchar num,uchar Signature,uchar Octachord,uint Speed)
 			          if(!Status)
 		              { 
 	                  Status=1;
-										LcdShowStr(0,1,Playing);    //ÏÔÊ¾²¥·Å×´Ì¬
+										LcdShowStr(0,1,Playing);    //æ˜¾ç¤ºæ’­æ”¾çŠ¶æ€
 										delayms(10);
-										DisplayOneChar(0,1,ASCII[musicNum]);//ÏÔÊ¾¸èÇúĞòºÅ
+										DisplayOneChar(0,1,ASCII[musicNum]);//æ˜¾ç¤ºæ­Œæ›²åºå·
 	                  delayms(10);
-								    LcdShowStr(2,1,MusicName[musicNum]);//ÏÔÊ¾¸èÇúÃû
-	                }                           //ÈôÊÇÔİÍ£×´Ì¬Ôò£¬½øÈëÔËĞĞ×´Ì¬
-                else                          //·ñÔò½øÈëÔİÍ£×´Ì¬
+								    LcdShowStr(2,1,MusicName[musicNum]);//æ˜¾ç¤ºæ­Œæ›²å
+	                }                           //è‹¥æ˜¯æš‚åœçŠ¶æ€åˆ™ï¼Œè¿›å…¥è¿è¡ŒçŠ¶æ€
+                else                          //å¦åˆ™è¿›å…¥æš‚åœçŠ¶æ€
                   {
                     TR0 = 0;
                     BeepIO = 1;
-                    Status = 0;               //½ö´ËÎ»ÖÃÄÜ¸Ä¶¯¸ÃÖµ
-										LcdShowStr(0,1,Pause);    //ÏÔÊ¾ÔİÍ£×´Ì¬
+                    Status = 0;               //ä»…æ­¤ä½ç½®èƒ½æ”¹åŠ¨è¯¥å€¼
+										LcdShowStr(0,1,Pause);    //æ˜¾ç¤ºæš‚åœçŠ¶æ€
 										delayms(10);
-										DisplayOneChar(0,1,ASCII[musicNum]);//ĞòºÅ
+										DisplayOneChar(0,1,ASCII[musicNum]);//åºå·
 	                  delayms(10);
-								    LcdShowStr(2,1,MusicName[musicNum]);//ÇúÃû
+								    LcdShowStr(2,1,MusicName[musicNum]);//æ›²å
                   }
 		          }
 	       }
-       //**********************Ö÷·Å¸è³ÌĞò*************************
-			  if(Status)                          //ÊÇ·ñ¿É²¥·Å
+       //**********************ä¸»æ”¾æ­Œç¨‹åº*************************
+			  if(Status)                          //æ˜¯å¦å¯æ’­æ”¾
 				 {
-						 SL=Tone%10; 								    //¼ÆËã³öÒô·û 
-						 LED=Tab[Tone%8];               //LED±³¾°ÏÔÊ¾
-						 SM=Tone/10%10; 								//¼ÆËã³ö¸ßµÍÒô 
-						 SH=Tone/100; 							    //¼ÆËã³öÊÇ·ñÉı°ë 
-						 CurrentFre = NewFreTab[SignTab[SL-1]+SH]; 	//²é³ö¶ÔÓ¦Òô·ûµÄÆµÂÊ 	
+						 SL=Tone%10; 								    //è®¡ç®—å‡ºéŸ³ç¬¦ 
+						 LED=Tab[Tone%8];               //LEDèƒŒæ™¯æ˜¾ç¤º
+						 SM=Tone/10%10; 								//è®¡ç®—å‡ºé«˜ä½éŸ³ 
+						 SH=Tone/100; 							    //è®¡ç®—å‡ºæ˜¯å¦å‡åŠ 
+						 CurrentFre = NewFreTab[SignTab[SL-1]+SH]; 	//æŸ¥å‡ºå¯¹åº”éŸ³ç¬¦çš„é¢‘ç‡ 	
 						 if(SL!=0)
 							 {
-								 if (SM==1) CurrentFre >>= 2; 		//µÍÒô 
-								 if (SM==3) CurrentFre <<= 2; 		//¸ßÒô
-								 Temp_T = 65536-(50000/CurrentFre)*10/(12000000/OSC);//¼ÆËã¼ÆÊıÆ÷³õÖµ
+								 if (SM==1) CurrentFre >>= 2; 		//ä½éŸ³ 
+								 if (SM==3) CurrentFre <<= 2; 		//é«˜éŸ³
+								 Temp_T = 65536-(50000/CurrentFre)*10/(12000000/OSC);//è®¡ç®—è®¡æ•°å™¨åˆå€¼
 								 Sound_Temp_TH0 = Temp_T/256; 
 								 Sound_Temp_TL0 = Temp_T%256; 
 								 TH0 = Sound_Temp_TH0;  
-								 TL0 = Sound_Temp_TL0 + 12; //¼Ó12ÊÇ¶ÔÖĞ¶ÏÑÓÊ±µÄ²¹³¥ 
+								 TL0 = Sound_Temp_TL0 + 12; //åŠ 12æ˜¯å¯¹ä¸­æ–­å»¶æ—¶çš„è¡¥å¿ 
 							 }
-						 SLen=LengthTab[Length%10]; 	  //Ëã³öÊÇ¼¸·ÖÒô·û
-						 XG=Length/10%10; 			        //Ëã³öÒô·ûÀàĞÍ(0ÆÕÍ¨1Á¬Òô2¶ÙÒô) 
+						 SLen=LengthTab[Length%10]; 	  //ç®—å‡ºæ˜¯å‡ åˆ†éŸ³ç¬¦
+						 XG=Length/10%10; 			        //ç®—å‡ºéŸ³ç¬¦ç±»å‹(0æ™®é€š1è¿éŸ³2é¡¿éŸ³) 
 						 FD=Length/100;
-						 LDiv=LDiv0/SLen; 		        	//Ëã³öÁ¬ÒôÒô·ûÑİ×àµÄ³¤¶È(¶àÉÙ¸ö10ms)
+						 LDiv=LDiv0/SLen; 		        	//ç®—å‡ºè¿éŸ³éŸ³ç¬¦æ¼”å¥çš„é•¿åº¦(å¤šå°‘ä¸ª10ms)
 						 if(FD==1) 
 							 LDiv=LDiv+LDiv/2;
 						 if(XG!=1)	
-							 if(XG==0) 				           //Ëã³öÆÕÍ¨Òô·ûµÄÑİ×à³¤¶È 
+							 if(XG==0) 				           //ç®—å‡ºæ™®é€šéŸ³ç¬¦çš„æ¼”å¥é•¿åº¦ 
 								 if(SLen<=4)	
 									 LDiv1=LDiv-LDiv4;
 								else
 									 LDiv1=LDiv*SOUND_SPACE;
 							else
-								 LDiv1=LDiv/2; 	         	//Ëã³ö¶ÙÒôµÄÑİ×à³¤¶È 
+								 LDiv1=LDiv/2; 	         	//ç®—å‡ºé¡¿éŸ³çš„æ¼”å¥é•¿åº¦ 
 						else
 							LDiv1=LDiv;
 						if(SL==0) LDiv1=0;
-							LDiv2=LDiv-LDiv1; 	      	//Ëã³ö²»·¢ÒôµÄ³¤¶È 
+							LDiv2=LDiv-LDiv1; 	      	//ç®—å‡ºä¸å‘éŸ³çš„é•¿åº¦ 
 						if (SL!=0)
 							{
-								TR0=1;                    //Æô¶¯·¢Òô
-								for(i=LDiv1;i>0;i--)    	//·¢¹æ¶¨³¤¶ÈµÄÒô,Ê¹ÓÃ¶¨Ê±Æ÷T1
+								TR0=1;                    //å¯åŠ¨å‘éŸ³
+								for(i=LDiv1;i>0;i--)    	//å‘è§„å®šé•¿åº¦çš„éŸ³,ä½¿ç”¨å®šæ—¶å™¨T1
 									{
 										while(TF1==0);
 										TH1 = Sound_Temp_TH1;
@@ -376,8 +358,8 @@ void Playvideo(uchar num,uchar Signature,uchar Octachord,uint Speed)
 							}
 						if(LDiv2!=0)
 							{
-								TR0=0; BeepIO=0;       //¹Ø±Õ·¢Òô
-								for(i=LDiv2;i>0;i--) 	//Òô·û¼äµÄ¼ä¸ô
+								TR0=0; BeepIO=0;       //å…³é—­å‘éŸ³
+								for(i=LDiv2;i>0;i--) 	//éŸ³ç¬¦é—´çš„é—´éš”
 									{
 										while(TF1==0);
 										TH1 = Sound_Temp_TH1;
@@ -386,24 +368,24 @@ void Playvideo(uchar num,uchar Signature,uchar Octachord,uint Speed)
 									}
 							}
 							
-						Point+=2;                  //ÓÒÒÆÁ½Î»£¬Ö¸ÏòÏÂ¸öÒô·û
+						Point+=2;                  //å³ç§»ä¸¤ä½ï¼ŒæŒ‡å‘ä¸‹ä¸ªéŸ³ç¬¦
 						Tone=Sound[musicNum][Point];
 						Length=Sound[musicNum][Point+1];
 		    }
-	//*****************************ÔİÍ£ÖĞ¼ì²âÍË³öµÄ³ÌĞò************************************
+	//*****************************æš‚åœä¸­æ£€æµ‹é€€å‡ºçš„ç¨‹åº************************************
 			  else
 				 {
-					  if(Next)                        //¸Õ´ÓÖĞ¶ÏÖĞ»ØÀ´
+					  if(Next)                        //åˆšä»ä¸­æ–­ä¸­å›æ¥
 				      {
 								Next=0;
-								UDshow(musicNum);           //ÏÔÊ¾ÉÏÏÂÇúÃû
+								UDshow(musicNum);           //æ˜¾ç¤ºä¸Šä¸‹æ›²å
 								delayms(10);
-								LcdShowStr(0,1,Pause);      //ÏÔÊ¾ÔİÍ£×´Ì¬
+								LcdShowStr(0,1,Pause);      //æ˜¾ç¤ºæš‚åœçŠ¶æ€
 								delayms(10);
-								DisplayOneChar(0,1,ASCII[musicNum]);//ĞòºÅ
+								DisplayOneChar(0,1,ASCII[musicNum]);//åºå·
 	              delayms(10);
-								LcdShowStr(2,1,MusicName[musicNum]);//ÇúÃû
-//								delayms(800);               //¿ÉÄÜÓ°ÏìÍË³ö,µ«¿É·ÀÖ¹lcd1602Ë¢ĞÂ¹ı¿ì
+								LcdShowStr(2,1,MusicName[musicNum]);//æ›²å
+//								delayms(800);               //å¯èƒ½å½±å“é€€å‡º,ä½†å¯é˜²æ­¢lcd1602åˆ·æ–°è¿‡å¿«
 				      }
 						if(K3==0)			
 							{
@@ -420,19 +402,19 @@ void Playvideo(uchar num,uchar Signature,uchar Octachord,uint Speed)
 								if(K1==0)
 									 {
 										 while(!K1);
-										 musicNum--;                             //ÉÏÒ»Çú
-										 if(musicNum==(-1))musicNum=N-1;         //0--,»Øµ½N-1,Ñ­»·Ñ¡Çú
-										 Point=0;                                //Òô·ûÎ»ÖÃÇåÁã
-										 UDshow(musicNum);                       //ÏÔÊ¾ÉÏÏÂÇúÃû
+										 musicNum--;                             //ä¸Šä¸€æ›²
+										 if(musicNum==(-1))musicNum=N-1;         //0--,å›åˆ°N-1,å¾ªç¯é€‰æ›²
+										 Point=0;                                //éŸ³ç¬¦ä½ç½®æ¸…é›¶
+										 UDshow(musicNum);                       //æ˜¾ç¤ºä¸Šä¸‹æ›²å
 										 delayms(10);
-										 DisplayOneChar(0,1,ASCII[musicNum]);    //ĞòºÅ
+										 DisplayOneChar(0,1,ASCII[musicNum]);    //åºå·
 	                   delayms(10);
-										 LcdShowStr(2,1,MusicName[musicNum]);    //ÇúÃû
+										 LcdShowStr(2,1,MusicName[musicNum]);    //æ›²å
 									 }
 						  }
 				 }			            
-		  }			//ÍË³ö·Å¸è
-			IsMusic=0;                         //¿ØÖÆT0·Å¸èµÄÑ¡ÔñÏî
+		  }			//é€€å‡ºæ”¾æ­Œ
+			IsMusic=0;                         //æ§åˆ¶T0æ”¾æ­Œçš„é€‰æ‹©é¡¹
 			BeepIO=0;
 			Point=0;
 			LcdShowStr(0,0,welcome);
@@ -440,46 +422,46 @@ void Playvideo(uchar num,uchar Signature,uchar Octachord,uint Speed)
 			LcdShowStr(0,1,leave);
 }
 /*******************************************************************************
-* º¯ Êı Ãû       : READIR_QUIT(void )
-* º¯Êı¹¦ÄÜ		   : ºìÍâºÍÍË³ö
+* å‡½ æ•° å       : READIR_QUIT(void )
+* å‡½æ•°åŠŸèƒ½		   : çº¢å¤–å’Œé€€å‡º
 *******************************************************************************/
 void READIR(void ) interrupt 0
 {
-//************************ºìÍâ½ÓÊÕµÄ³ÌĞò*********************************
+//************************çº¢å¤–æ¥æ”¶çš„ç¨‹åº*********************************
 	 uint err;
 	 Time=0;
-	 IRIN=1;//³õÊ¼»¯¶Ë¿Ú
+	 IRIN=1;//åˆå§‹åŒ–ç«¯å£
 
 	 delayus(700);                      	//7ms
-	 if(IRIN==0)		                      //È·ÈÏÊÇ·ñÕæµÄ½ÓÊÕµ½ÕıÈ·µÄĞÅºÅ
+	 if(IRIN==0)		                      //ç¡®è®¤æ˜¯å¦çœŸçš„æ¥æ”¶åˆ°æ­£ç¡®çš„ä¿¡å·
 		{	 
-			err=1000;				                  //10ms,³¬¹ıËµÃ÷½ÓÊÕµ½´íÎóµÄĞÅºÅ
-			while((IRIN==0)&&(err>0))	       //µÈ´ıÇ°Ãæ9msµÄµÍµçÆ½¹ıÈ¥  		
+			err=1000;				                  //10ms,è¶…è¿‡è¯´æ˜æ¥æ”¶åˆ°é”™è¯¯çš„ä¿¡å·
+			while((IRIN==0)&&(err>0))	       //ç­‰å¾…å‰é¢9msçš„ä½ç”µå¹³è¿‡å»  		
 			 {			
 				 delayus(1);
 				 err--;
 			 }
 			 
-			if(IRIN==1)			                 //Èç¹ûÕıÈ·µÈµ½9msµÍµçÆ½
+			if(IRIN==1)			                 //å¦‚æœæ­£ç¡®ç­‰åˆ°9msä½ç”µå¹³
 			 {
 					err=500;
-					while((IRIN==1)&&(err>0))     //µÈ´ı4.5msµÄÆğÊ¼¸ßµçÆ½¹ıÈ¥
+					while((IRIN==1)&&(err>0))     //ç­‰å¾…4.5msçš„èµ·å§‹é«˜ç”µå¹³è¿‡å»
 							{
 							 delayus(1);
 							 err--;
 							}
-		     for(k=0;k<4;k++)		          //¹²ÓĞ4×éÊı¾İ
+		     for(k=0;k<4;k++)		          //å…±æœ‰4ç»„æ•°æ®
 				  {				
-						for(j=0;j<8;j++)	          //½ÓÊÕÒ»×éÊı¾İ
+						for(j=0;j<8;j++)	          //æ¥æ”¶ä¸€ç»„æ•°æ®
 								{
 									err=60;		
-									while((IRIN==0)&&(err>0)) //µÈ´ıĞÅºÅÇ°ÃæµÄ560usµÍµçÆ½¹ıÈ¥
+									while((IRIN==0)&&(err>0)) //ç­‰å¾…ä¿¡å·å‰é¢çš„560usä½ç”µå¹³è¿‡å»
 											{
 											 delayus(1);
 											 err--;
 											}
 									err=500;
-									while((IRIN==1)&&(err>0))	 //¼ÆËã¸ßµçÆ½µÄÊ±¼ä³¤¶È¡£
+									while((IRIN==1)&&(err>0))	 //è®¡ç®—é«˜ç”µå¹³çš„æ—¶é—´é•¿åº¦ã€‚
 											{
 											 delayus(10);	           //0.1ms
 											 Time++;
@@ -487,16 +469,16 @@ void READIR(void ) interrupt 0
 											 if(Time>30)
 											 {return;}
 											}
-									IrValue[k]>>=1;	          //k±íÊ¾µÚ¼¸×éÊı¾İ
-									if(Time>=8)			          //Èç¹û¸ßµçÆ½³öÏÖ´óÓÚ565us,ÄÇÃ´ÊÇ1
+									IrValue[k]>>=1;	          //kè¡¨ç¤ºç¬¬å‡ ç»„æ•°æ®
+									if(Time>=8)			          //å¦‚æœé«˜ç”µå¹³å‡ºç°å¤§äº565us,é‚£ä¹ˆæ˜¯1
 											{
 											 IrValue[k]|=0x80;
 											}
-									Time=0;		                //ÓÃÍêÊ±¼äÒªÖØĞÂ¸³Öµ							
+									Time=0;		                //ç”¨å®Œæ—¶é—´è¦é‡æ–°èµ‹å€¼							
 								}
 			   }
 			}
-		 if(IrValue[2]!=~IrValue[3])           //Ğ£Ñé
+		 if(IrValue[2]!=~IrValue[3])           //æ ¡éªŒ
 			 {return;}
 	 }
 }
