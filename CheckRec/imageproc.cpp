@@ -38,6 +38,15 @@ void SubWindow::changeWindows()
     reOpenImage(); //使用关闭并重新打开文件的信号
 }
 
+void SubWindow::processCodeArea()
+{
+    winType type = getCurrentWinType();
+    if(type == New){
+        //qDebug() << "Emit reopen signal.";
+        reOpenImage(); //使用关闭并重新打开文件的信号
+    }
+}
+
 void MainWindow::imageProcTriggered(QImage (*handle)(const QImage &),const QString &message)
 {
     if (activeSubWindow() && activeSubWindow()->Item())
@@ -90,6 +99,8 @@ void MainWindow::NewImage()
     winType type = New;
     SubWindow *subwindow = new SubWindow(type);           //创建子窗口部件
     mdiArea->addSubWindow(subwindow);               //多文档区域添加子窗口，作为中心部件
+    //关联子窗体的信号：关闭原有的窗口，重新导入同类型文件
+    connect(subwindow,&SubWindow::reOpenImage,this,&MainWindow::reLoadImage);
     //根据QTextEdit类鉴别复制、剪切和复制是否可用
     connect(subwindow->getTextEdit(), SIGNAL(copyAvailable(bool)),cutAct, SLOT(setEnabled(bool)));
     connect(subwindow->getTextEdit(), SIGNAL(copyAvailable(bool)),copyAct, SLOT(setEnabled(bool)));
@@ -103,15 +114,27 @@ void MainWindow::reLoadImage()
     SubWindow * sub = activeSubWindow();
     if(sub)
     {
-        if(sub->getCurrentWinType() == Open)
+        winType type = sub->getCurrentWinType();
+        if(type == Open)
         {
             mdiArea->closeActiveSubWindow();
             OpenImage();
         }
         else
         {
-            mdiArea->closeActiveSubWindow();
-            CutImage();                     //无法成功运行
+            if(type == Cut){
+                mdiArea->closeActiveSubWindow();
+                CutImage();
+            }
+            else{
+                QString fileName; //将当前图片导入到Open窗口里
+                if(sub->saveAs(fileName)){ //先保存（不能先关闭窗口，否则资源会被销毁），跳出文件浏览器窗口
+                    statusBar()->showMessage(tr("保存成功"), 2000);
+                    mdiArea->setActiveSubWindow(findSubWindow(fileName)); //找到这个窗口并设置为当前活动窗口
+                    mdiArea->closeActiveSubWindow(); //再把它关闭才成功
+                    openFile(fileName); //在打开
+                }
+            }
         }
     }
 }
@@ -133,6 +156,7 @@ void MainWindow::openFile(const QString &fileName)
         QMdiSubWindow *existing = findSubWindow(fileName);
         if (existing) {
             mdiArea->setActiveSubWindow(existing);
+            qDebug() << "Windows already exists.";
             return;
         }
 
@@ -147,6 +171,7 @@ void MainWindow::openFile(const QString &fileName)
             //关联子窗体信号，根据字体来实时更新主窗体字体菜单状态栏
             connect(subwindow,&SubWindow::textUpdate,this,&MainWindow::textChangedUpdate);
         } else {
+            qDebug() << "Fail to open this file.";
             subwindow->close();
         }
     }

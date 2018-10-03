@@ -50,12 +50,14 @@ public:
     void cleanImage();                                 //清除图片
     void restoreImage();                               //还原图像
     void changeWindows();                              //更换图像
+    void processCodeArea();                            //处理验证码图片
 
     void newFile();                                    //新建验证码
     void cutFile();                                    //验证码屏幕截图
-    bool loadFile(const QString &fileName);            //导入验证码
+    bool loadFile(const QString &fileName);            //从文件浏览器导入验证码
     bool save();                                       //保存新建的验证码
     bool saveAs();                                     //另存为其他格式
+    bool saveAs(QString& fileName);                    //可返回保存的路径
     bool saveFile(QString fileName);                   //保存图片
     bool showFile(QPixmap pix);                        //显示图片
     void setImageStatus(bool status){toSaveIt = status;} //设置保存状态
@@ -93,6 +95,8 @@ private slots:
 private:
     bool maybeSave();
     void setCurrentFile(const QString &fileName);
+    void generateView();
+    void generateTextCnt();
     QString strippedName(const QString &fullFileName);  //获取较短的绝对路径
     QString curPath;                                    //保存当前文件路径
     winType currentWinType;                             //当前所处的窗口类型

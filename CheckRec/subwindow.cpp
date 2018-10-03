@@ -17,80 +17,17 @@ SubWindow::SubWindow(winType type) : currentWinType(type)
 {
     if(currentWinType == New)
     {
-        codeArea = new CodeArea();              //生成验证码
-        codeArea->setFixedSize(150,60);
+        codeArea = new CodeArea();              // 生成验证码
+        codeArea->setFixedSize(150,60);         // 指定区域，防止窗口缩放中变形
     }
     else
     {
-        size = new QLabel(tr("Dimensions：*** x ***"));
-        zoom = 50.0;
-        //info = NULL;
-        spinbox = new QSpinBox;
-        spinbox->setRange(1,99);
-        spinbox->setValue(zoom);
-        spinbox->setFixedWidth(40);
-        slider = new QSlider;                   //用于缩放的滚动条
-        slider->setOrientation(Qt::Horizontal);
-        slider->setRange(1,99);
-        slider->setTickInterval(10);
-        slider->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
-        slider->setValue(zoom);
-        //关联信号到槽，将spinbox - slider - zoomInOut 关联起来
-        connect(spinbox,SIGNAL(valueChanged(int)),slider,SLOT(setValue(int)));
-        connect(slider,SIGNAL(valueChanged(int)),spinbox,SLOT(setValue(int)));
-        connect(slider,SIGNAL(valueChanged(int)),this,SLOT(zoomInOut(int)));
-
-        zoomin = new QPushButton;
-        zoomin->setIcon(QPixmap(rsrcPath + "/zoomin.png"));
-        zoomin->setFixedSize(QPixmap(rsrcPath + "/zoomin.png").size());
-        zoomin->setStatusTip(tr("放大"));
-        connect(zoomin,SIGNAL(clicked()),this,SLOT(zoomIn()));
-        zoomout = new QPushButton;
-        zoomout->setIcon(QPixmap(rsrcPath + "/zoomout.png"));
-        //zoomout->setIconSize(QPixmap(rsrcPath + "/zoomout.png").size());
-        zoomout->setFixedSize(QPixmap(rsrcPath + "/zoomout.png").size());
-        zoomout->setStatusTip(tr("缩小"));
-        connect(zoomout,SIGNAL(clicked()),this,SLOT(zoomOut()));
-        scene = new QGraphicsScene(this);
-        scene->setBackgroundBrush(QColor::fromRgb(224,224,224)); //填充背景
-        view = new QGraphicsView;
-        view->setScene(scene);
-        view->setMinimumSize(160,65);
-        view->resize(200,120);
-        view->setCacheMode(QGraphicsView::CacheBackground);
-        //view->show();
+        generateView(); // 图形视图，生成图片像素的标签和初始化graphics/view
     }
 
-    userText = new QLabel(tr("编辑框"));
-    userText->setFrameStyle(QFrame::Panel|QFrame::Raised);
-    userText->setFixedHeight(25);
-    userText->resize(160,25);
-    textEdit = new QTextEdit;
-    textEdit->setFixedHeight(30);
-    textEdit->document()->setMaximumBlockCount(1); //设置最大行数为1行
-    //添加个选择菜单栏：1.用户认证识别验证码 2.自定义生成验证码 3.软件识别验证码
-    textEdit->setAlignment(Qt::AlignCenter);
-    QFont font(QString::fromLocal8Bit("Arial"),14);
-    textEdit->setFont(font);
+    generateTextCnt(); // 生成编辑框，提示信息组合框和按钮
 
-    combox = new QComboBox;
-    combox->addItem(QIcon(rsrcPath + "/recognize.png"),tr("识别"));
-    if(currentWinType == New) {
-        combox->addItem(QIcon(rsrcPath + "/check.png"),tr("认证"));
-        combox->addItem(QIcon(rsrcPath + "/generate.png"),tr("生成"));
-    }
-    else {
-        combox->addItem(QIcon(rsrcPath + "/check.png"),tr("还原"));
-        combox->addItem(QIcon(rsrcPath + "/generate.png"),tr("更换"));
-    }
-    combox->setFixedHeight(30);
-    //connect(comboBox,SIGNAL(activated(int)),this,SLOT(textEdit->clear()));  //关联相应的槽函数
-    functionBtn = new QPushButton(tr("OK"));
-    functionBtn->setFixedHeight(30);
-    connect(functionBtn,SIGNAL(clicked()),this,SLOT(tool()));
-
-    mainLayout = new QVBoxLayout();
-
+    mainLayout = new QVBoxLayout(); //实现布局
     if(currentWinType == New)
     {
         mainLayout->addWidget(codeArea,0,Qt::AlignCenter);
@@ -134,6 +71,77 @@ SubWindow::~SubWindow()
     delete_s(msgBox);
 }
 
+void SubWindow::generateView()
+{
+    size = new QLabel(tr("Dimensions：*** x ***"));
+    zoom = 50.0;
+    //info = NULL;
+    spinbox = new QSpinBox;
+    spinbox->setRange(1,99);
+    spinbox->setValue(zoom);
+    spinbox->setFixedWidth(40);
+    slider = new QSlider;                   //用于缩放的滚动条
+    slider->setOrientation(Qt::Horizontal);
+    slider->setRange(1,99);
+    slider->setTickInterval(10);
+    slider->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
+    slider->setValue(zoom);
+    //关联信号到槽，将spinbox - slider - zoomInOut 关联起来
+    connect(spinbox,SIGNAL(valueChanged(int)),slider,SLOT(setValue(int)));
+    connect(slider,SIGNAL(valueChanged(int)),spinbox,SLOT(setValue(int)));
+    connect(slider,SIGNAL(valueChanged(int)),this,SLOT(zoomInOut(int)));
+
+    zoomin = new QPushButton;
+    zoomin->setIcon(QPixmap(rsrcPath + "/zoomin.png"));
+    zoomin->setFixedSize(QPixmap(rsrcPath + "/zoomin.png").size());
+    zoomin->setStatusTip(tr("放大"));
+    connect(zoomin,SIGNAL(clicked()),this,SLOT(zoomIn()));
+    zoomout = new QPushButton;
+    zoomout->setIcon(QPixmap(rsrcPath + "/zoomout.png"));
+    //zoomout->setIconSize(QPixmap(rsrcPath + "/zoomout.png").size());
+    zoomout->setFixedSize(QPixmap(rsrcPath + "/zoomout.png").size());
+    zoomout->setStatusTip(tr("缩小"));
+    connect(zoomout,SIGNAL(clicked()),this,SLOT(zoomOut()));
+    scene = new QGraphicsScene(this);
+    scene->setBackgroundBrush(QColor::fromRgb(224,224,224)); //填充背景
+    view = new QGraphicsView;
+    view->setScene(scene);
+    view->setMinimumSize(160,65);
+    view->resize(200,120);
+    view->setCacheMode(QGraphicsView::CacheBackground);
+    //view->show();
+}
+
+void SubWindow::generateTextCnt()
+{
+    userText = new QLabel(tr("编辑框"));
+    userText->setFrameStyle(QFrame::Panel|QFrame::Raised);
+    userText->setFixedHeight(25);
+    userText->resize(160,25);
+    textEdit = new QTextEdit;
+    textEdit->setFixedHeight(30);
+    textEdit->document()->setMaximumBlockCount(1); //设置最大行数为1行
+    textEdit->setAlignment(Qt::AlignCenter);
+    QFont font(QString::fromLocal8Bit("Arial"),14);
+    textEdit->setFont(font);
+
+    combox = new QComboBox;
+    combox->addItem(QIcon(rsrcPath + "/recognize.png"),tr("揭晓")); //0 识别
+    if(currentWinType == New) {
+        combox->addItem(QIcon(rsrcPath + "/check.png"),tr("校对")); //1
+        combox->addItem(QIcon(rsrcPath + "/generate.png"),tr("更换"));//2
+        combox->addItem(QIcon(rsrcPath + "/tooth.png"),tr("处理"));//3
+    }
+    else {
+        combox->addItem(QIcon(rsrcPath + "/check.png"),tr("还原"));//1
+        combox->addItem(QIcon(rsrcPath + "/generate.png"),tr("更换"));//2
+    }
+    combox->setFixedHeight(30);
+    //connect(comboBox,SIGNAL(activated(int)),this,SLOT(textEdit->clear()));  //关联相应的槽函数
+    functionBtn = new QPushButton(tr("OK"));
+    functionBtn->setFixedHeight(30);
+    connect(functionBtn,SIGNAL(clicked()),this,SLOT(tool()));
+}
 void SubWindow::newFile()
 {
     toSaveIt = false;
@@ -173,6 +181,7 @@ bool SubWindow::loadFile(const QString &fileName)
 
         //info = new QFileInfo(fileName);
         pixmap.load(fileName);
+
         pixmapItem = scene->addPixmap(pixmap);                      //显示导入的验证码
         scene->setSceneRect(QRectF(pixmap.rect()));                 //设置显示大小
 
@@ -335,21 +344,26 @@ void SubWindow::tool()
     switch(index)
     {
         case 0: {
-                    if(type == New) recognizeCode();    //识别验证码
-                    else recognizePic();                //图像识别
+                    if(type == New) recognizeCode();    //揭晓验证码的答案
+                    else recognizePic();                //调用验证码识别功能
                     break;
                 }
         case 1: {
-                    if(type == New) checkCode();        //用户认证
+                    if(type == New) checkCode();        //用户校对验证码的结果
                     else restoreImage();                //恢复图像
                     break;
                 }
         case 2: {
-                   if(type == New) setCode();           //生成验证码
-                   else changeWindows();
+                   if(type == New) setCode();           //读取编辑框的信息并生成对应验证码
+                   else changeWindows();                //导入图片更换窗口
                    break;
                 }
-        default:   qDebug() << "Nothing called." << endl;
+        case 3: {
+                    if(type == New) processCodeArea();
+                    else qDebug() << "Not support for Open here.";
+                    break;
+                }
+        default:   qDebug() << "Nothing called.";
     }
 }
 //全路径中取文件名
@@ -424,7 +438,15 @@ bool SubWindow::save()
 
 bool SubWindow::saveAs()
 {   //要求全名
-    QString fileName = QFileDialog::getSaveFileName(this, tr("另存为"), curPath,
+    QString fileName;
+    return saveAs(fileName);
+}
+
+bool SubWindow::saveAs(QString& fileName)
+{
+    //qDebug() << "SaveAs Called.";
+
+    fileName = QFileDialog::getSaveFileName(this, tr("另存为"), curPath,
                 tr("All files (*);;"  "Image PNG (*.png);;""Image JPG (*.jpg);;"
                    "Image BPM (*.bpm);;" "Image GIF (*.gif);;""Image JPEG (*.jpeg);;"
                    "Image PPM (*.ppm);;" "Image XBM (*.xbm);;" "Image XPM (*.xpm);;"));
