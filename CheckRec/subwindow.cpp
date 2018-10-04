@@ -15,49 +15,13 @@
 
 SubWindow::SubWindow(winType type) : currentWinType(type)
 {
-    if(currentWinType == New)
-    {
-        codeArea = new CodeArea();              // 生成验证码
-        codeArea->setFixedSize(150,60);         // 指定区域，防止窗口缩放中变形
+    switch(type){
+        case New: generateNew();   break;
+        case Open: generateOpen(); break;
+        case Cut: generateCut();   break;
+        case Draw: generateDraw(); break;
+        default: ;
     }
-    else
-    {
-        generateView(); // 图形视图，生成图片像素的标签和初始化graphics/view
-    }
-
-    generateTextCnt(); // 生成编辑框，提示信息组合框和按钮
-
-    mainLayout = new QVBoxLayout(); //实现布局
-    if(currentWinType == New)
-    {
-        mainLayout->addWidget(codeArea,0,Qt::AlignCenter);
-    }
-    else
-    {
-        mainLayout->addWidget(size);                    //显示验证码像素值
-        mainLayout->setSpacing(5);                      //分割区域
-        //缩放控制子布局
-        zoomLayout = new QHBoxLayout();
-        zoomLayout->addWidget(spinbox);
-        zoomLayout->addWidget(zoomout);
-        zoomLayout->addWidget(slider);
-        zoomLayout->addWidget(zoomin);
-        mainLayout->addWidget(view);
-        mainLayout->addLayout(zoomLayout);
-    }
-    mainLayout->setSpacing(5);
-    textLayout = new QHBoxLayout;
-    textLayout->addWidget(userText);                //提示信息
-    textLayout->addWidget(textEdit);                //编辑框
-    mainLayout->addLayout(textLayout);
-
-    btnLayout = new QHBoxLayout();
-    btnLayout->addWidget(combox);                  //菜单栏
-    btnLayout->addWidget(functionBtn);             //功能按钮
-    mainLayout->addLayout(btnLayout);
-
-    //resize(180,200);
-    setLayout(mainLayout);
     setAttribute(Qt::WA_DeleteOnClose);    //设置在主窗口关闭时销毁这个类的对象实例
 }
 
@@ -70,7 +34,54 @@ SubWindow::~SubWindow()
     delete_s(textEdit);
     delete_s(msgBox);
 }
+void SubWindow::generateNew(){
+    codeArea = new CodeArea();      // 生成验证码
+    codeArea->setFixedSize(150,60); // 指定区域，防止窗口缩放中变形
+    generateTextCnt();              // 生成编辑框，提示信息组合框和按钮
+    mainLayout = new QVBoxLayout(); //实现布局
+    mainLayout->addWidget(codeArea,0,Qt::AlignCenter);
+    mainLayout->setSpacing(5);
+    textLayout = new QHBoxLayout;
+    textLayout->addWidget(userText);                //提示信息
+    textLayout->addWidget(textEdit);                //编辑框
+    mainLayout->addLayout(textLayout);
 
+    btnLayout = new QHBoxLayout();
+    btnLayout->addWidget(combox);                  //菜单栏
+    btnLayout->addWidget(functionBtn);             //功能按钮
+    mainLayout->addLayout(btnLayout);
+    //resize(180,200);
+    setLayout(mainLayout);
+}
+void SubWindow::generateOpen(){
+    generateView(); // 图形视图，生成图片像素的标签和初始化graphics/view
+    generateTextCnt(); // 生成编辑框，提示信息组合框和按钮
+    mainLayout = new QVBoxLayout(); //实现布局
+    mainLayout->addWidget(size); //显示验证码像素值
+    mainLayout->setSpacing(5);  //分割区域
+    //缩放控制子布局
+    zoomLayout = new QHBoxLayout();
+    zoomLayout->addWidget(spinbox);
+    zoomLayout->addWidget(zoomout);
+    zoomLayout->addWidget(slider);
+    zoomLayout->addWidget(zoomin);
+    mainLayout->addWidget(view);
+    mainLayout->addLayout(zoomLayout);
+    mainLayout->setSpacing(5);
+    textLayout = new QHBoxLayout;
+    textLayout->addWidget(userText);                //提示信息
+    textLayout->addWidget(textEdit);                //编辑框
+    mainLayout->addLayout(textLayout);
+
+    btnLayout = new QHBoxLayout();
+    btnLayout->addWidget(combox);                  //菜单栏
+    btnLayout->addWidget(functionBtn);             //功能按钮
+    mainLayout->addLayout(btnLayout);
+    //resize(180,200);
+    setLayout(mainLayout);
+}
+void SubWindow::generateCut(){generateOpen();}
+void SubWindow::generateDraw(){}
 void SubWindow::generateView()
 {
     size = new QLabel(tr("Dimensions：*** x ***"));

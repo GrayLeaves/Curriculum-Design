@@ -50,5 +50,6 @@
         <file>images/binaryzation.png</file>
         <file>images/sobel.png</file>
         <file>images/laplace.png</file>
+        <file>images/paint.png</file>
     </qresource>
 </RCC>

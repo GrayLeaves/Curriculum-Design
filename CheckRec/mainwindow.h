@@ -156,7 +156,7 @@ private:
     QAction *previousAct = nullptr;       //Ctrl+Shift+Tab
     QAction *separatorAct = nullptr;      //separate
     //【提取】主菜单
-    QAction *drawHstgrmAct = nullptr;        //绘制直方图
+    QAction *drawHstgrmAct = nullptr;     //绘制直方图
     QAction *greyScaleAct = nullptr;
     QAction *binaryzationAct = nullptr;
     QAction *invertAct = nullptr;

@@ -1,7 +1,3 @@
-
-//ÕâÊÇÒ»¸ölstm+cnnµÄocrÀý×Ó
-//2017Äê7ÔÂ14ÈÕ 12:23:54
-//wish
 #include <iostream>
 #include <vector>
 #include <string>
@@ -49,15 +45,15 @@ string getLabel(const vector<string>& labelMap, int index){
 
 int main()
 {
-	string picture = "C:\\Users\\wuzhenguang\\Pictures\\ºÚµ×°××ÖÑéÖ¤Âë\\4SU5G_11586.png";
-	//½ûÖ¹caffeÊä³öÐÅÏ¢
+	string picture = "C:\\Users\\wuzhenguang\\Pictures\\ï¿½Úµ×°ï¿½ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½\\4SU5G_11586.png";
+	//ï¿½ï¿½Ö¹caffeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢
 	disableErrorOutput();
 
-	//×¢ÒâÄ¿Â¼ÊÇÏà¶Ô¹¤³ÌÉÏ¼¶Ä¿Â¼µÄ
+	//×¢ï¿½ï¿½Ä¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½Ô¹ï¿½ï¿½ï¿½ï¿½Ï¼ï¿½Ä¿Â¼ï¿½ï¿½
 	Classifier* classif = createClassifier("deploy.prototxt", "_iter_122659.caffemodel");
 	//const char* imageFile = "4SU5G_11586.png";
 	
-	/*cout << "ÊäÈëËùÐèÊ¶±ðµÄÍ¼Æ¬ÎÄ¼þÃû£¨ÔÚºÚ°×ÑéÖ¤ÂëÄ¿Â¼£©£¬²»ÓÃÀ©Õ¹Ãû:" << endl;
+	/*cout << "ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¶ï¿½ï¿½ï¿½ï¿½Í¼Æ¬ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÚºÚ°ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½Ä¿Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¹ï¿½ï¿½:" << endl;
 	string fileName;
 	cin >> fileName;
 	string picture = path + fileName + string(".png");
@@ -66,7 +62,7 @@ int main()
 	vector<char> data = readFile(picture.c_str());
 	//vector<char> data = readFile(imageFile);
 	if (data.empty()){
-		printf("ÎÄ¼þ²»´æÔÚÃ´£¿ %s\n", picture.c_str());
+		printf("ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã´ï¿½ï¿½ %s\n", picture.c_str());
 
 		releaseClassifier(classif);
 		system("pause");
@@ -97,8 +93,8 @@ int main()
 	}
 
 	releaseBlobData(premuted_fc);
-	printf("Ê¶±ðµÄ½á¹ûÊÇ£º\n%s\n", result.c_str());
-	//printf("Ê¶±ðµÄ½á¹ûÊÇ£º\n%s\n%s\n", result.c_str(), result_raw.c_str());
+	printf("Ê¶ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½ï¿½Ç£ï¿½\n%s\n", result.c_str());
+	//printf("Ê¶ï¿½ï¿½ï¿½Ä½ï¿½ï¿½ï¿½ï¿½Ç£ï¿½\n%s\n%s\n", result.c_str(), result_raw.c_str());
 	releaseClassifier(classif);
 
 	system("pause");

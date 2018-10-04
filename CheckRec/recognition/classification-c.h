@@ -3,16 +3,9 @@
 
 #include "support-common.h"
 
-#ifdef USE_CPP
-#include <Windows.h>
-#include <cv.h>
-class Classifier;
-typedef cv::Mat Image;
-#else
 typedef void TaskPool;
 typedef void Image;
 typedef void Classifier;
-#endif
 
 #ifdef __cplusplus
 extern "C"{

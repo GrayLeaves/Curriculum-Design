@@ -41,7 +41,8 @@ SOURCES += main.cpp\
     imageproc.cpp \
     dialog.cpp \
     recentopened.cpp \
-    histogram/histogram.cpp
+    histogram/histogram.cpp \
+    #drawdigit.cpp
 
 HEADERS  += mainwindow.h \
     subwindow.h \
@@ -54,7 +55,9 @@ HEADERS  += mainwindow.h \
     recognition/support-common.h \
     recognition/recognition.h \
     recognition/classification-c.h \
-    histogram/histogram.h
+    histogram/histogram.h \
+    ui_mainwindow.h \
+    #drawdigit.h
 	
 #qt designer -- no use
 FORMS    += mainwindow.ui

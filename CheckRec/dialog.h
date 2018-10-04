@@ -3,7 +3,6 @@
 
 #include <QDialog>
 #include <QPoint>
-//#include <QClipboard>
 #include <QScreen>
 
 class QMouseEvent;

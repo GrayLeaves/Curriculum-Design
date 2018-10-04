@@ -31,9 +31,11 @@
 
 #include <QDebug>
 #include <QPushButton>
-#include "checkcode/checkcode.h"  //生成验证码
 
-enum winType{New,Open,Cut};
+#include "checkcode/checkcode.h"  //生成验证码
+//#include "drawdigit.h"            //绘制手写体
+
+enum winType{New,Open,Cut,Draw};
 //enum Aligns{Left = 1,Center,Right,Justify};
 
 class SubWindow : public QWidget
@@ -97,6 +99,10 @@ private:
     void setCurrentFile(const QString &fileName);
     void generateView();
     void generateTextCnt();
+    void generateNew();
+    void generateOpen();
+    void generateCut();
+    void generateDraw();
     QString strippedName(const QString &fullFileName);  //获取较短的绝对路径
     QString curPath;                                    //保存当前文件路径
     winType currentWinType;                             //当前所处的窗口类型
@@ -130,7 +136,12 @@ private:
     CodeArea *codeArea = nullptr;                       //显示生成的验证码
     QMessageBox *msgBox = nullptr;                      //用户认证对错触发消息
     QComboBox *combox = nullptr;                        //下拉菜单
-    QPushButton *functionBtn = nullptr;                 //用户验证码认证
+    QPushButton *functionBtn = nullptr;                 //用户验证码校对
 
+    //【绘图】
+    /*DrawDigit *drawdidit = nullptr;
+    QComboBox *widthBox = nullptr;
+    QToolButton *clearBtn = nullptr;
+    QToolButton *saveBtn = nullptr;*/
 };
 #endif // SUBWINDOW_H

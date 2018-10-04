@@ -1,8 +1,6 @@
 #ifndef RECOGNITION_H
 #define RECOGNITION_H
 
-//这是一个lstm+cnn的ocr例子
-//#include <iostream>
 #include <vector>
 #include <string>
 #include <algorithm>
