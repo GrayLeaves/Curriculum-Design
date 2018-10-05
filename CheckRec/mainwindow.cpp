@@ -30,9 +30,9 @@ MainWindow::MainWindow(QWidget *parent) :
     createStatusBar();
     updateMenus();
 
-    move(284,150);
+    move(284,50);
     setMaximumSize(1200,675);
-    resize(800,400);
+    resize(800,500);
 
     QPixmap pixmap(rsrcPath + "/background.bmp");
     mdiArea->setBackground(QBrush(pixmap));
@@ -160,6 +160,12 @@ void MainWindow::createActions() //【包含几乎所有的动作信号关联到
     screencutAct->setToolTip("验证码截图");
     screencutAct->setStatusTip(tr("从屏幕中将验证码截图并导入"));
     connect(screencutAct, SIGNAL(triggered()), this, SLOT(CutImage()));
+
+    drawdigitAct = new QAction(QIcon(rsrcPath + "/paint.png"), tr("手写字符(&)..."), this);
+    //screencutAct->setShortcut(Qt::CTRL + Qt::Key_D);
+    drawdigitAct->setToolTip("绘制手写体字符");
+    drawdigitAct->setStatusTip(tr("生成绘制手写体字符的画板"));
+    connect(drawdigitAct, SIGNAL(triggered()), this, SLOT(DrawPic()));
 
     clearRecentOpened = new QAction(QIcon(rsrcPath + "/recent.png"), tr("清除记录(&)..."), this);
     clearRecentOpened->setToolTip("清除记录");
@@ -390,6 +396,7 @@ void MainWindow::createMenus()
     fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
     fileMenu->addAction(screencutAct);
+    fileMenu->addAction(drawdigitAct);
 
     recentMenu = fileMenu->addMenu(tr("最近打开(&R)"));
     recentMenu->addAction(clearRecentOpened);
@@ -468,6 +475,7 @@ void MainWindow::createToolBars()
     fileToolBar->addAction(newAct);
     fileToolBar->addAction(openAct);
     fileToolBar->addAction(screencutAct);
+    fileToolBar->addAction(drawdigitAct);
     fileToolBar->addAction(saveAct);
     fileToolBar->addAction(saveAsAct);
     fileToolBar->addSeparator();        //分隔条

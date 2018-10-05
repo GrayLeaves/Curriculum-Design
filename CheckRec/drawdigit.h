@@ -8,7 +8,7 @@
 #include <QPoint>
 #include <QPainter>
 #include <QPalette>
-
+#include <QString>
 class DrawDigit : public QWidget
 {
     Q_OBJECT
@@ -18,13 +18,14 @@ public:
     void mousePressEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
     void paintEvent(QPaintEvent *);
-
 signals:
 
 public slots:
-    void setPenWidth(int w){width = w;}
+    void setWidth(int w);
     void clearPic();
     void savePic();
+    QString getResult();
+
 private:
     QPixmap *pix = nullptr;
     QPoint startPos;

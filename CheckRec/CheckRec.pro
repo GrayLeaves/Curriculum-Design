@@ -42,7 +42,7 @@ SOURCES += main.cpp\
     dialog.cpp \
     recentopened.cpp \
     histogram/histogram.cpp \
-    #drawdigit.cpp
+    drawdigit.cpp
 
 HEADERS  += mainwindow.h \
     subwindow.h \
@@ -57,7 +57,7 @@ HEADERS  += mainwindow.h \
     recognition/classification-c.h \
     histogram/histogram.h \
     ui_mainwindow.h \
-    #drawdigit.h
+    drawdigit.h
 	
 #qt designer -- no use
 FORMS    += mainwindow.ui

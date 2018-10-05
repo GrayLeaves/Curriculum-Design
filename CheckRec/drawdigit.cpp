@@ -8,7 +8,7 @@ DrawDigit::DrawDigit(QWidget *parent):QWidget(parent)
     setPalette(QPalette(Qt::white));
     pix =new QPixmap(size()); //绘板
     pix->fill(Qt::black); //黑底白字
-    setFixedSize(100,168); //固定画板大小，黄金
+    //setFixedSize(150,242); //固定画板大小
 }
 
 DrawDigit::~DrawDigit(){
@@ -41,6 +41,10 @@ void DrawDigit::paintEvent(QPaintEvent *)
     paint.drawPixmap(QPoint(0,0),*pix);
 }
 
+void DrawDigit::setWidth(int w){
+    width = w;
+}
+
 void DrawDigit::clearPic()
 {
     delete_s(pix);
@@ -50,5 +54,9 @@ void DrawDigit::clearPic()
 }
 
 void DrawDigit::savePic(){
+
+}
+
+QString DrawDigit::getResult(){
 
 }

@@ -1,6 +1,7 @@
 #include "subwindow.h"
+#include "drawdigit.h"
 #include "common.h"
-#include "recognition/recognition.h"
+//#include "recognition/recognition.h"
 #include <string>
 #include <QtMath>
 #include <QTextStream>
@@ -35,17 +36,17 @@ SubWindow::~SubWindow()
     delete_s(msgBox);
 }
 void SubWindow::generateNew(){
-    codeArea = new CodeArea();      // 生成验证码
+    codeArea = new CodeArea;      // 生成验证码
     codeArea->setFixedSize(150,60); // 指定区域，防止窗口缩放中变形
     generateTextCnt();              // 生成编辑框，提示信息组合框和按钮
-    mainLayout = new QVBoxLayout(); //实现布局
+    mainLayout = new QVBoxLayout; //实现布局
     mainLayout->addWidget(codeArea,0,Qt::AlignCenter);
     mainLayout->setSpacing(5);
+
     textLayout = new QHBoxLayout;
     textLayout->addWidget(userText);                //提示信息
     textLayout->addWidget(textEdit);                //编辑框
     mainLayout->addLayout(textLayout);
-
     btnLayout = new QHBoxLayout();
     btnLayout->addWidget(combox);                  //菜单栏
     btnLayout->addWidget(functionBtn);             //功能按钮
@@ -56,11 +57,11 @@ void SubWindow::generateNew(){
 void SubWindow::generateOpen(){
     generateView(); // 图形视图，生成图片像素的标签和初始化graphics/view
     generateTextCnt(); // 生成编辑框，提示信息组合框和按钮
-    mainLayout = new QVBoxLayout(); //实现布局
+    mainLayout = new QVBoxLayout; //实现布局
     mainLayout->addWidget(size); //显示验证码像素值
     mainLayout->setSpacing(5);  //分割区域
     //缩放控制子布局
-    zoomLayout = new QHBoxLayout();
+    zoomLayout = new QHBoxLayout;
     zoomLayout->addWidget(spinbox);
     zoomLayout->addWidget(zoomout);
     zoomLayout->addWidget(slider);
@@ -68,12 +69,12 @@ void SubWindow::generateOpen(){
     mainLayout->addWidget(view);
     mainLayout->addLayout(zoomLayout);
     mainLayout->setSpacing(5);
+
     textLayout = new QHBoxLayout;
     textLayout->addWidget(userText);                //提示信息
     textLayout->addWidget(textEdit);                //编辑框
     mainLayout->addLayout(textLayout);
-
-    btnLayout = new QHBoxLayout();
+    btnLayout = new QHBoxLayout;
     btnLayout->addWidget(combox);                  //菜单栏
     btnLayout->addWidget(functionBtn);             //功能按钮
     mainLayout->addLayout(btnLayout);
@@ -81,7 +82,38 @@ void SubWindow::generateOpen(){
     setLayout(mainLayout);
 }
 void SubWindow::generateCut(){generateOpen();}
-void SubWindow::generateDraw(){}
+
+void SubWindow::generateDraw(){
+    widthLabel =new QLabel(tr("线宽"));
+    widthLabel->setFrameStyle(QFrame::Panel|QFrame::Raised);
+    widthLabel->setFixedSize(40,25);
+    widthSpinBox =new QSpinBox;
+    widthSpinBox->setFixedHeight(30);
+    widthSpinBox->setRange(3,8);
+    widthSpinBox->setValue(5);
+    connect(widthSpinBox,SIGNAL(valueChanged(int)),drawdigit,SLOT(setWidth(int)));
+    lineWidth = new QHBoxLayout;
+    lineWidth->addWidget(widthLabel);
+    lineWidth->addWidget(widthSpinBox);
+    drawdigit = new DrawDigit;
+    drawdigit->setFixedSize(150,200);
+    generateTextCnt();
+    mainLayout = new QVBoxLayout;
+    mainLayout->addLayout(lineWidth);
+    mainLayout->addWidget(drawdigit,0,Qt::AlignCenter);
+    mainLayout->setSpacing(5);
+
+    textLayout = new QHBoxLayout;
+    textLayout->addWidget(userText);                //提示信息
+    textLayout->addWidget(textEdit);                //编辑框
+    mainLayout->addLayout(textLayout);
+    btnLayout = new QHBoxLayout;
+    btnLayout->addWidget(combox);                  //菜单栏
+    btnLayout->addWidget(functionBtn);             //功能按钮
+    mainLayout->addLayout(btnLayout);
+    setLayout(mainLayout);
+}
+
 void SubWindow::generateView()
 {
     size = new QLabel(tr("Dimensions：*** x ***"));
@@ -125,7 +157,7 @@ void SubWindow::generateView()
 
 void SubWindow::generateTextCnt()
 {
-    userText = new QLabel(tr("编辑框"));
+    userText = new QLabel(tr("编辑栏"));
     userText->setFrameStyle(QFrame::Panel|QFrame::Raised);
     userText->setFixedHeight(25);
     userText->resize(160,25);
@@ -140,12 +172,17 @@ void SubWindow::generateTextCnt()
     combox->addItem(QIcon(rsrcPath + "/recognize.png"),tr("揭晓")); //0 识别
     if(currentWinType == New) {
         combox->addItem(QIcon(rsrcPath + "/check.png"),tr("校对")); //1
-        combox->addItem(QIcon(rsrcPath + "/generate.png"),tr("更换"));//2
+        combox->addItem(QIcon(rsrcPath + "/generate.png"),tr("更新"));//2
         combox->addItem(QIcon(rsrcPath + "/tooth.png"),tr("处理"));//3
     }
-    else {
-        combox->addItem(QIcon(rsrcPath + "/check.png"),tr("还原"));//1
-        combox->addItem(QIcon(rsrcPath + "/generate.png"),tr("更换"));//2
+    else{
+        combox->addItem(QIcon(rsrcPath + "/cycle.png"),tr("还原"));//1
+        switch(currentWinType){
+            case Open : combox->addItem(QIcon(rsrcPath + "/openimage.png"),tr("替换")); break;//2
+            case Cut  : combox->addItem(QIcon(rsrcPath + "/screencut.png"),tr("替换")); break;//2
+            case Draw : combox->addItem(QIcon(rsrcPath + "/delete.png"),tr("清除")); break;//2
+            default: break;
+        }
     }
     combox->setFixedHeight(30);
     //connect(comboBox,SIGNAL(activated(int)),this,SLOT(textEdit->clear()));  //关联相应的槽函数
@@ -231,7 +268,7 @@ void SubWindow::recognizeCode()
 }
 
 //将识别结果送到编辑框，用dnn获得的
-void SubWindow::recognizePic()
+/*void SubWindow::recognizePic()
 {
     this->textEdit->clear();
     winType type = getCurrentWinType();
@@ -250,7 +287,7 @@ void SubWindow::recognizePic()
     else
         textEdit->setText(QString(result.c_str()));
     textEdit->setAlignment(Qt::AlignCenter);
-}
+}*/
 
 //设置验证码
 void SubWindow::setCode()
@@ -355,19 +392,33 @@ void SubWindow::tool()
     switch(index)
     {
         case 0: {
-                    if(type == New) recognizeCode();    //揭晓验证码的答案
-                    else recognizePic();                //调用验证码识别功能
+                    switch(type){
+                        case New: recognizeCode(); break;//揭晓验证码的答案
+                        case Open: case Cut: /*recognizePic();*/ break;//调用验证码识别功能
+                        case Draw: {drawdigit->getResult();
+                            qDebug() << "No String Now." ;
+                            break; }//返回识别结果
+                        default:;
+                    }
                     break;
                 }
         case 1: {
-                    if(type == New) checkCode();        //用户校对验证码的结果
-                    else restoreImage();                //恢复图像
+                    switch(type){
+                        case New: checkCode(); break;//用户校对验证码的结果
+                        case Open: case Cut: restoreImage(); break; //恢复图像
+                        case Draw: drawdigit->savePic(); break;  //保存图像
+                        default:;
+                    }
                     break;
                 }
         case 2: {
-                   if(type == New) setCode();           //读取编辑框的信息并生成对应验证码
-                   else changeWindows();                //导入图片更换窗口
-                   break;
+                    switch(type){
+                        case New: setCode(); break; //读取编辑框的信息并生成对应验证码
+                        case Open: case Cut: changeWindows(); break; //导入图片更换窗口
+                        case Draw: drawdigit->clearPic(); break;//清除
+                        default:;
+                    }
+                    break;
                 }
         case 3: {
                     if(type == New) processCodeArea();

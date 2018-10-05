@@ -98,6 +98,7 @@ void MainWindow::NewImage()
 {
     winType type = New;
     SubWindow *subwindow = new SubWindow(type);           //创建子窗口部件
+    //subwindow->setFixedWidth(160);
     mdiArea->addSubWindow(subwindow);               //多文档区域添加子窗口，作为中心部件
     //关联子窗体的信号：关闭原有的窗口，重新导入同类型文件
     connect(subwindow,&SubWindow::reOpenImage,this,&MainWindow::reLoadImage);
@@ -175,6 +176,19 @@ void MainWindow::openFile(const QString &fileName)
             subwindow->close();
         }
     }
+}
+
+void MainWindow::DrawPic(){
+    winType type = Draw;
+    SubWindow *subwindow = createSubWindow(type);
+    //subwindow->setFixedWidth(220);
+    statusBar()->showMessage(tr("已生成绘制窗口，欢迎使用"), 2000);
+    subwindow->show();
+    setEnabledText(true);          //使得字体设置菜单可用
+    //关联子窗体的信号：关闭原有的窗口，重新导入同类型文件
+    //connect(subwindow,&SubWindow::reOpenImage,this,&MainWindow::reLoadImage);
+    //关联子窗体信号，根据字体来实时更新主窗体字体菜单状态栏
+    connect(subwindow,&SubWindow::textUpdate,this,&MainWindow::textChangedUpdate);
 }
 
 void MainWindow::SaveImage()

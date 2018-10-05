@@ -33,7 +33,7 @@
 #include <QPushButton>
 
 #include "checkcode/checkcode.h"  //生成验证码
-//#include "drawdigit.h"            //绘制手写体
+#include "drawdigit.h"            //绘制手写体
 
 enum winType{New,Open,Cut,Draw};
 //enum Aligns{Left = 1,Center,Right,Justify};
@@ -85,7 +85,7 @@ signals:
 private slots:
     void isModified();                                  //是否修改过文本标志
     void recognizeCode();                               //将识别结果送到编辑框
-    void recognizePic();
+    //void recognizePic();
     void setCode();                                     //设置代码
     void checkCode();                                   //用户输入验证码结果
     void replaceCode();                                 //更换验证码
@@ -139,9 +139,9 @@ private:
     QPushButton *functionBtn = nullptr;                 //用户验证码校对
 
     //【绘图】
-    /*DrawDigit *drawdidit = nullptr;
-    QComboBox *widthBox = nullptr;
-    QToolButton *clearBtn = nullptr;
-    QToolButton *saveBtn = nullptr;*/
+    DrawDigit *drawdigit = nullptr;
+    QLabel *widthLabel = nullptr;
+    QSpinBox *widthSpinBox = nullptr;
+    QHBoxLayout *lineWidth = nullptr;
 };
 #endif // SUBWINDOW_H
