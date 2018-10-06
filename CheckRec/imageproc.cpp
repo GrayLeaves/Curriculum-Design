@@ -185,6 +185,7 @@ void MainWindow::DrawPic(){
     statusBar()->showMessage(tr("已生成绘制窗口，欢迎使用"), 2000);
     subwindow->show();
     setEnabledText(true);          //使得字体设置菜单可用
+    subwindow->drawFile();
     //关联子窗体的信号：关闭原有的窗口，重新导入同类型文件
     //connect(subwindow,&SubWindow::reOpenImage,this,&MainWindow::reLoadImage);
     //关联子窗体信号，根据字体来实时更新主窗体字体菜单状态栏

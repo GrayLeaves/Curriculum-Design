@@ -56,6 +56,7 @@ public:
 
     void newFile();                                    //新建验证码
     void cutFile();                                    //验证码屏幕截图
+    void drawFile();                                   //手绘字符
     bool loadFile(const QString &fileName);            //从文件浏览器导入验证码
     bool save();                                       //保存新建的验证码
     bool saveAs();                                     //另存为其他格式
@@ -106,7 +107,6 @@ private:
     QString strippedName(const QString &fullFileName);  //获取较短的绝对路径
     QString curPath;                                    //保存当前文件路径
     winType currentWinType;                             //当前所处的窗口类型
-
     bool toSaveIt;                                      //该文件是否需要提示保存
     QLabel *userText = nullptr;                         //用户输入提示
     QTextEdit *textEdit = nullptr;                      //编辑框

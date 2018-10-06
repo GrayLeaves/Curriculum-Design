@@ -23,11 +23,15 @@ signals:
 public slots:
     void setWidth(int w);
     void clearPic();
-    void savePic();
+    bool savePic(QString& fileName);
+    void restorePic();
+    void smoothPic();
     QString getResult();
 
 private:
+    int square_dist(const QPoint& l,const QPoint& r);
     QPixmap *pix = nullptr;
+    QPixmap *last_pix = nullptr;
     QPoint startPos;
     QPoint endPos;
     int width;

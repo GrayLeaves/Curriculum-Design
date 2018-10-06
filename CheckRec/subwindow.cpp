@@ -91,13 +91,15 @@ void SubWindow::generateDraw(){
     widthSpinBox->setFixedHeight(30);
     widthSpinBox->setRange(3,8);
     widthSpinBox->setValue(5);
-    connect(widthSpinBox,SIGNAL(valueChanged(int)),drawdigit,SLOT(setWidth(int)));
+
     lineWidth = new QHBoxLayout;
     lineWidth->addWidget(widthLabel);
     lineWidth->addWidget(widthSpinBox);
     drawdigit = new DrawDigit;
-    drawdigit->setFixedSize(150,200);
+    drawdigit->setFixedSize(140,180);
+    connect(widthSpinBox,SIGNAL(valueChanged(int)),drawdigit,SLOT(setWidth(int)));
     generateTextCnt();
+
     mainLayout = new QVBoxLayout;
     mainLayout->addLayout(lineWidth);
     mainLayout->addWidget(drawdigit,0,Qt::AlignCenter);
@@ -180,7 +182,8 @@ void SubWindow::generateTextCnt()
         switch(currentWinType){
             case Open : combox->addItem(QIcon(rsrcPath + "/openimage.png"),tr("替换")); break;//2
             case Cut  : combox->addItem(QIcon(rsrcPath + "/screencut.png"),tr("替换")); break;//2
-            case Draw : combox->addItem(QIcon(rsrcPath + "/delete.png"),tr("清除")); break;//2
+            case Draw : combox->addItem(QIcon(rsrcPath + "/delete.png"),tr("清除")); //2
+                        /*combox->addItem(QIcon(rsrcPath + "/sobel.png"),tr("平滑"));*/ break;//3
             default: break;
         }
     }
@@ -207,6 +210,19 @@ void SubWindow::cutFile()
     //屏幕截图获得的图片默认命名为“屏幕截图_序号”的形式，编号
     toSaveIt = true;        //提醒保存
     curPath = tr("Screen_cut_%1").arg(sequenceNum++);
+    //设置窗体标题，若使用[*]表示还未被保存过
+    setWindowTitle(curPath + "[*]");
+    setWindowModified(true);
+    //若编辑框的内容被更改时发送contentsChange()信号来执行isModified()函数
+    connect(this->textEdit->document(),SIGNAL(contentsChanged()),this,SLOT(isModified()));
+}
+
+void SubWindow::drawFile(){
+    //设置文档编号，因编号始终存在，故为静态变量
+    static int sequenceNum = 1;
+    //屏幕截图获得的图片默认命名为“屏幕截图_序号”的形式，编号
+    toSaveIt = true;        //提醒保存
+    curPath = tr("QChar_%1").arg(sequenceNum++);
     //设置窗体标题，若使用[*]表示还未被保存过
     setWindowTitle(curPath + "[*]");
     setWindowModified(true);
@@ -384,7 +400,7 @@ void SubWindow::resetZoom()   	//缩放
     zoom = 50.0;
     slider->setValue(zoom);
 }
-//
+
 void SubWindow::tool()
 {
     winType type = getCurrentWinType();
@@ -406,7 +422,7 @@ void SubWindow::tool()
                     switch(type){
                         case New: checkCode(); break;//用户校对验证码的结果
                         case Open: case Cut: restoreImage(); break; //恢复图像
-                        case Draw: drawdigit->savePic(); break;  //保存图像
+                        case Draw: drawdigit->restorePic(); break;  //还原到上次清除的图像
                         default:;
                     }
                     break;
@@ -422,10 +438,15 @@ void SubWindow::tool()
                 }
         case 3: {
                     if(type == New) processCodeArea();
-                    else qDebug() << "Not support for Open here.";
+                    else{
+                        /*if(type == Draw)
+                            drawdigit->smoothPic();
+                        else*/
+                            qDebug() << "Not support for Open here.";
+                    }
                     break;
                 }
-        default:   qDebug() << "Nothing called.";
+        default:   qDebug() << "Unknow Windows Type.";
     }
 }
 //全路径中取文件名
@@ -530,11 +551,11 @@ bool SubWindow::saveFile(QString fileName)
         bool success = false;
         //保存图片到新路径上
         winType type = getCurrentWinType();
-        if(type != New){
-            success = pixmapItem->pixmap().save(fileName);
-        }
-        else{
-            success = codeArea->saveCode(fileName);
+        switch(type){
+            case New: success = codeArea->saveCode(fileName); break;
+            case Open: case Cut: success = pixmapItem->pixmap().save(fileName); break;
+            case Draw: success = drawdigit->savePic(fileName); break;
+            default : qDebug() << "Unknown Windows Type.";
         }
         if (success)
             setCurrentFile(fileName);
