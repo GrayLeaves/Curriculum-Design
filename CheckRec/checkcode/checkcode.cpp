@@ -3,7 +3,7 @@
 #include <QTime>
 #include <QPainter>
 #include <QPaintEvent>
-
+#include <QDebug>
 
 CodeArea::CodeArea(): activeConversed(true)
 {
@@ -52,10 +52,11 @@ void CodeArea::initCodeColorList()
 void CodeArea::generateImage(QPaintEvent *event)
 {
     int w = event->rect().width(),h = event->rect().height();
-    img = QImage(w, h, QImage::Format_RGB32);
+    bool ok = img.load(rsrcPath + "/canvas.bmp");
+    if(!ok) img = QImage(w, h, QImage::Format_RGB32);
     QPainter painter(&img);
     painter.setRenderHint(QPainter::Antialiasing);
-    painter.fillRect(event->rect(), QBrush(Qt::white));
+    if(!ok) painter.fillRect(event->rect(), QBrush(Qt::white));
     painter.translate(0, 0);
     painter.save();
     painter.translate(event->rect().center().x() - codePic.size() * 3, event->rect().center().y());

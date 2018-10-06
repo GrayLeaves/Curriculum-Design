@@ -37,7 +37,7 @@ SubWindow::~SubWindow()
 }
 void SubWindow::generateNew(){
     codeArea = new CodeArea;      // 生成验证码
-    codeArea->setFixedSize(150,60); // 指定区域，防止窗口缩放中变形
+    codeArea->setFixedSize(150,77); // 指定区域，防止窗口缩放中变形
     generateTextCnt();              // 生成编辑框，提示信息组合框和按钮
     mainLayout = new QVBoxLayout; //实现布局
     mainLayout->addWidget(codeArea,0,Qt::AlignCenter);

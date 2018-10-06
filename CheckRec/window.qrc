@@ -51,5 +51,6 @@
         <file>images/sobel.png</file>
         <file>images/laplace.png</file>
         <file>images/paint.png</file>
+        <file>images/canvas.bmp</file>
     </qresource>
 </RCC>
