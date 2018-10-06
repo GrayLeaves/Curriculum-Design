@@ -1,7 +1,7 @@
 #include "subwindow.h"
-#include "drawdigit.h"
+#include "drawdigit/drawdigit.h"
 #include "common.h"
-//#include "recognition/recognition.h"
+#include "recognition/recognition.h"
 #include <string>
 #include <QtMath>
 #include <QTextStream>
@@ -268,7 +268,7 @@ void SubWindow::recognizeCode()
 }
 
 //将识别结果送到编辑框，用dnn获得的
-/*void SubWindow::recognizePic()
+void SubWindow::recognizePic()
 {
     this->textEdit->clear();
     winType type = getCurrentWinType();
@@ -287,7 +287,7 @@ void SubWindow::recognizeCode()
     else
         textEdit->setText(QString(result.c_str()));
     textEdit->setAlignment(Qt::AlignCenter);
-}*/
+}
 
 //设置验证码
 void SubWindow::setCode()
@@ -394,7 +394,7 @@ void SubWindow::tool()
         case 0: {
                     switch(type){
                         case New: recognizeCode(); break;//揭晓验证码的答案
-                        case Open: case Cut: /*recognizePic();*/ break;//调用验证码识别功能
+                        case Open: case Cut: recognizePic(); break;//调用验证码识别功能
                         case Draw: {drawdigit->getResult();
                             qDebug() << "No String Now." ;
                             break; }//返回识别结果

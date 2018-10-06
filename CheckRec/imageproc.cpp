@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "subwindow.h"
-#include "recentopened.h"
+#include "recentopened/recentopened.h"
 #include "histogram/histogram.h"
 #include "proc.h"
 

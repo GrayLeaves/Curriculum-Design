@@ -1,6 +1,6 @@
 #pragma once
 
-#include "support-common.h"
+#include "support_common.h"
 
 #ifdef __cplusplus
 #include <opencv/cv.h>
@@ -8,7 +8,7 @@
 //#include <opencv2/highgui/highgui.hpp>
 #include <vector>
 #endif
-#include "classification-c.h"
+#include "classification_c.h"
 
 #ifdef __cplusplus
 class Caffe_API Classifier {

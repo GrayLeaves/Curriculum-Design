@@ -37,27 +37,27 @@ SOURCES += main.cpp\
     subwindow.cpp \
     checkcode/checkcode.cpp \
     textproc.cpp \
-    screencut.cpp \
+    screencut/screencut.cpp \
     imageproc.cpp \
-    dialog.cpp \
-    recentopened.cpp \
+    screencut/dialog.cpp \
+    recentopened/recentopened.cpp \
     histogram/histogram.cpp \
-    drawdigit.cpp
+    drawdigit/drawdigit.cpp
 
 HEADERS  += mainwindow.h \
     subwindow.h \
     checkcode/checkcode.h \
-    dialog.h \
+    screencut/dialog.h \
     proc.h \
-    recentopened.h \
+    recentopened/recentopened.h \
     common.h \
     recognition/classification.h \
-    recognition/support-common.h \
     recognition/recognition.h \
-    recognition/classification-c.h \
     histogram/histogram.h \
     ui_mainwindow.h \
-    drawdigit.h
+    drawdigit/drawdigit.h \
+    recognition/support_common.h \
+    recognition/classification_c.h
 	
 #qt designer -- no use
 FORMS    += mainwindow.ui

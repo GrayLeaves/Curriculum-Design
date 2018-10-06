@@ -5,10 +5,10 @@
 #include <string>
 #include <algorithm>
 #include <fstream>
-#include "classification-c.h"
+#include "classification_c.h"
 using namespace std;
-//#pragma warning(disable : 4996)
-//#pragma comment(lib, "classification_dll.lib")
+
+//#pragma comment(lib, "recognition/classification_dll.lib")
 
 vector<char> readFile(const char* file){
     vector<char> data;
@@ -47,11 +47,9 @@ string getLabel(const vector<string>& labelMap, int index){
 
 string recognition(string& picture)
 {
-    //string picture = "C:\\Users\\wuzhenguang\\Pictures\\黑底白字验证码\\4SU5G_11586.png";
     //禁止caffe输出信息
     disableErrorOutput();
     vector<char> data = readFile(picture.c_str());
-    //注意目录是相对工程上级目录的
     Classifier* classif = createClassifier("deploy.prototxt", "_iter_122659.caffemodel");
     forward(classif, &data[0], data.size());
     vector<string> labelMap = loadCodeMap("label-map.txt");
