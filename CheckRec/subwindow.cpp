@@ -219,7 +219,7 @@ void SubWindow::cutFile()
 
 void SubWindow::drawFile(){
     //设置文档编号，因编号始终存在，故为静态变量
-    static int sequenceNum = 1;
+    static int sequenceNum = 0;
     //屏幕截图获得的图片默认命名为“屏幕截图_序号”的形式，编号
     toSaveIt = true;        //提醒保存
     curPath = tr("QChar_%1").arg(sequenceNum++);

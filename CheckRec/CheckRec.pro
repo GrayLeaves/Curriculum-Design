@@ -42,7 +42,8 @@ SOURCES += main.cpp\
     screencut/dialog.cpp \
     recentopened/recentopened.cpp \
     histogram/histogram.cpp \
-    drawdigit/drawdigit.cpp
+    drawdigit/drawdigit.cpp \
+    drawdigit/trainwithtest.cpp
 
 HEADERS  += mainwindow.h \
     subwindow.h \
