@@ -8,14 +8,18 @@
 
 using namespace cv;
 using namespace  std;
+
 template <typename T>
-using Matrix<T> = vector<vector<T> >;
+using Matrix = vector<vector<T> >;
+
+bool isTrained = false;
+Ptr<ml::KNearest> kNearest;
 
 QStringList proc::readDir(const QString& path){
     QDir dir(path);
     QStringList typeFilters;
     typeFilters << "*.jpg" << "*.png";
-    QStringList imgFiles = dir.entryList(nameFilters, QDir::Files|QDir::Readable, QDir::Name);
+    QStringList imgFiles = dir.entryList(typeFilters, QDir::Files|QDir::Readable, QDir::Name);
     return imgFiles;
 }
 
@@ -27,7 +31,6 @@ bool proc::generateXMLDataFile(const QStringList& imgFiles){
     int len = imgFiles.size();
     if(len % 10 != 0) return false;
 
-    sortFiles(imgFiles);
     //生成训练标签
     Mat charToRec;
     Mat charROI;
@@ -38,7 +41,8 @@ bool proc::generateXMLDataFile(const QStringList& imgFiles){
 
     for(int i=0; i<len; ++i){
         QString fileName = imgFiles[i];
-        Mat matROI = imread(fileName + ".png",0);
+        string strFileName = fileName.toStdString();
+        Mat matROI = imread(strFileName,0);
         if(matROI.empty()){
             qDebug() << "Can't read file :" << fileName;
             return false;
@@ -79,7 +83,7 @@ bool proc::generateXMLDataFile(const QStringList& imgFiles){
     return true;
 }
 
-bool proc::trainModel()
+bool proc::trainModel(Ptr<ml::KNearest>& kNearest)
 {
     FileStorage labels("labels.xml", FileStorage::READ);
     if (!labels.isOpened()) {
@@ -98,7 +102,6 @@ bool proc::trainModel()
     TrainImg["images"] >> charROI;
     TrainImg.release();
     //Train
-    Ptr<ml::KNearest> kNearest(ml::KNearest::create());  //KNN
     kNearest->train(charROI, ml::ROW_SAMPLE, charToRec);
 
     qDebug() << "Train Completed.";
@@ -106,7 +109,16 @@ bool proc::trainModel()
 }
 
 bool proc::useModel(const QString& fileName,int& charRec){
-    Mat matROI = imread(fileName + ".png",0);
+
+    if(!isTrained){
+        Ptr<ml::KNearest> kNearest = ml::KNearest::create();  //KNN
+        bool isTrained = proc::trainModel(kNearest);
+        if(!isTrained) return false;
+        isTrained = true;
+    }
+
+    string strFileName = fileName.toStdString();
+    Mat matROI = imread(strFileName,0);
     Mat matROIClone = matROI.clone();
     Matrix<Point> contours;
     vector<Vec4i> hierarchy;
