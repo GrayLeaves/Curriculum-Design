@@ -21,11 +21,12 @@ namespace proc {
 	QImage SobelEdge(const QImage &origin);				//sobel边缘检测
     QImage PrewittEdge(const QImage &origin);			//Prewitt边缘检测
 
+    bool genLabels(const QString& path);
     QStringList readDir(const QString& path);
     void sortFiles(QStringList& imgFiles);
-    bool generateXMLDataFile(const QStringList& imgFiles);
+    bool generateXMLDataFile(const QString& path,const QStringList& imgFiles);
     bool trainModel(Ptr<ml::KNearest>& kNearest);
-    bool useModel(const QString& fileName,int& charRec);
+    int useModel(const QString& fileName);
 }
 
 #endif // PROC_H

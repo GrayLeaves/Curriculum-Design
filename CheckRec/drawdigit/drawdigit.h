@@ -26,7 +26,6 @@ public slots:
     bool savePic(QString& fileName);
     void restorePic();
     void smoothPic();
-    QString getResult();
 
 private:
     int square_dist(const QPoint& l,const QPoint& r);

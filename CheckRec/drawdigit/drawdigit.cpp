@@ -80,13 +80,7 @@ bool DrawDigit::savePic(QString& fileName){
     return pix->save(fileName);
 }
 
-void DrawDigit::smoothPic(){
-
-}
-
-QString DrawDigit::getResult(){
-
-}
+void DrawDigit::smoothPic(){}
 
 int DrawDigit::square_dist(const QPoint& l,const QPoint& r){
     return (l.x()-r.x())*(l.x()-r.x()) + (l.y()-r.y())*(l.y()-r.y());

@@ -11,23 +11,41 @@ using namespace  std;
 
 template <typename T>
 using Matrix = vector<vector<T> >;
-
-bool isTrained = false;
 Ptr<ml::KNearest> kNearest;
 
 QStringList proc::readDir(const QString& path){
     QDir dir(path);
     QStringList typeFilters;
-    typeFilters << "*.jpg" << "*.png";
+    typeFilters << "*.png";
     QStringList imgFiles = dir.entryList(typeFilters, QDir::Files|QDir::Readable, QDir::Name);
+    for(QString& file : imgFiles)
+        qDebug() << file;
     return imgFiles;
 }
 
-void proc::sortFiles(QStringList& imgFiles){
-
+bool proc::genLabels(const QString& path){
+    QStringList imgFiles = readDir(path);
+    if(!imgFiles.empty())
+        sortFiles(imgFiles);
+    else
+        return false;
+    if(generateXMLDataFile(path,imgFiles))
+        return true;
+    else
+        return false;
 }
 
-bool proc::generateXMLDataFile(const QStringList& imgFiles){
+void proc::sortFiles(QStringList& imgFiles){
+    vector<string> imgs;
+    for(int i=0; i<imgFiles.size(); ++i) imgs.push_back(imgFiles[i].toStdString());
+    stable_sort(imgs.begin(),imgs.end(),greater<string>());
+    imgFiles.clear();
+    for(auto &s : imgs){
+        imgFiles << QString::fromStdString(s);
+    }
+}
+
+bool proc::generateXMLDataFile(const QString& path,const QStringList& imgFiles){
     int len = imgFiles.size();
     if(len % 10 != 0) return false;
 
@@ -38,13 +56,14 @@ bool proc::generateXMLDataFile(const QStringList& imgFiles){
         for(int j=0; j<len/10; ++j)//how many pictures for each number
             charToRec.push_back(i);
     }
-
+    string fullPath = path.toStdString();
     for(int i=0; i<len; ++i){
         QString fileName = imgFiles[i];
         string strFileName = fileName.toStdString();
-        Mat matROI = imread(strFileName,0);
+        string fullPathFile = fullPath+strFileName;
+        Mat matROI = imread(fullPathFile,0);
         if(matROI.empty()){
-            qDebug() << "Can't read file :" << fileName;
+            qDebug() << "Can't read file :" << path << fileName;
             return false;
         }
         Mat matROIClone = matROI.clone();
@@ -108,14 +127,11 @@ bool proc::trainModel(Ptr<ml::KNearest>& kNearest)
     return true;
 }
 
-bool proc::useModel(const QString& fileName,int& charRec){
+int proc::useModel(const QString& fileName){
 
-    if(!isTrained){
-        Ptr<ml::KNearest> kNearest = ml::KNearest::create();  //KNN
-        bool isTrained = proc::trainModel(kNearest);
-        if(!isTrained) return false;
-        isTrained = true;
-    }
+    Ptr<ml::KNearest> kNearest = ml::KNearest::create();  //KNN
+    bool isTrained = proc::trainModel(kNearest);
+    if(!isTrained) return -1;
 
     string strFileName = fileName.toStdString();
     Mat matROI = imread(strFileName,0);
@@ -135,8 +151,9 @@ bool proc::useModel(const QString& fileName,int& charRec){
 
     Mat matRecChar(0, 0, CV_32F);
     kNearest->findNearest(dst, 1, matRecChar);
-    charRec = static_cast<int>(matRecChar.at<float>(0, 0));
+    int charRec = static_cast<int>(matRecChar.at<float>(0, 0));
     delete_s(hog);
 
-    return true;
+    qDebug() << "The number is " << charRec;
+    return charRec;
 }

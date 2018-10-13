@@ -85,6 +85,9 @@ signals:
 
 private slots:
     void isModified();                                  //是否修改过文本标志
+    bool readPath(QString& fullPath);
+    void genLabels();
+    void showResult();
     void recognizeCode();                               //将识别结果送到编辑框
     void recognizePic();
     void setCode();                                     //设置代码
@@ -104,6 +107,7 @@ private:
     void generateOpen();
     void generateCut();
     void generateDraw();
+
     QString strippedName(const QString &fullFileName);  //获取较短的绝对路径
     QString curPath;                                    //保存当前文件路径
     winType currentWinType;                             //当前所处的窗口类型

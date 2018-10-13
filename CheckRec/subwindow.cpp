@@ -1,6 +1,7 @@
 #include "subwindow.h"
 #include "drawdigit/drawdigit.h"
 #include "common.h"
+#include "proc.h"
 #include "recognition/recognition.h"
 #include <string>
 #include <QtMath>
@@ -183,7 +184,7 @@ void SubWindow::generateTextCnt()
             case Open : combox->addItem(QIcon(rsrcPath + "/openimage.png"),tr("替换")); break;//2
             case Cut  : combox->addItem(QIcon(rsrcPath + "/screencut.png"),tr("替换")); break;//2
             case Draw : combox->addItem(QIcon(rsrcPath + "/delete.png"),tr("清除")); //2
-                        /*combox->addItem(QIcon(rsrcPath + "/sobel.png"),tr("平滑"));*/ break;//3
+                        combox->addItem(QIcon(rsrcPath + "/sobel.png"),tr("训练")); break;//3
             default: break;
         }
     }
@@ -222,7 +223,7 @@ void SubWindow::drawFile(){
     static int sequenceNum = 0;
     //屏幕截图获得的图片默认命名为“屏幕截图_序号”的形式，编号
     toSaveIt = true;        //提醒保存
-    curPath = tr("QChar_%1").arg(sequenceNum++);
+    curPath = tr("Qc_%1").arg(sequenceNum++);
     //设置窗体标题，若使用[*]表示还未被保存过
     setWindowTitle(curPath + "[*]");
     setWindowModified(true);
@@ -270,17 +271,89 @@ void SubWindow::isModified()
     }
 }
 
+bool SubWindow::readPath(QString& fullPath){
+    QString strText = this->textEdit->toPlainText();
+    QTextStream ts(&strText);
+    fullPath = ts.readLine();
+    QDir dir(fullPath);
+    if(dir.exists())
+        return true;
+    else
+        return false;
+}
+
+void SubWindow::genLabels(){
+
+    QFont srcfont(QString::fromLocal8Bit("Arial"),10); //路径很长，调整字体
+    textEdit->setFont(srcfont);
+
+    QString path;
+    bool success = readPath(path);
+    if(path.isNull()){
+        msgBox = new QMessageBox(QMessageBox::Information, QStringLiteral("Tips"),
+                 QStringLiteral("请在编辑框内输入文件路径"),QMessageBox::Ok, this);
+        msgBox->setIconPixmap(QPixmap(rsrcPath + "/sobel.png"));
+    }
+    else{
+        if(!success){ //读取路径
+                msgBox = new QMessageBox(QMessageBox::Information, QStringLiteral("Tips"),
+                            QStringLiteral("FilePath doesn't exist."),QMessageBox::Ok, this);
+                msgBox->setIconPixmap(QPixmap(rsrcPath + "/again.png"));
+        }
+        else{
+            if(proc::genLabels(path)){
+                msgBox = new QMessageBox(QMessageBox::Information, QStringLiteral("Tips"),
+                         QStringLiteral("Train completed."),QMessageBox::Ok, this);
+                msgBox->setIconPixmap(QPixmap(rsrcPath + "/success.png"));
+            }
+            else{
+                msgBox = new QMessageBox(QMessageBox::Information, QStringLiteral("Tips"),
+                         QStringLiteral("Train failed."),QMessageBox::Ok, this);
+                msgBox->setIconPixmap(QPixmap(rsrcPath + "/failure.png"));
+            }
+        }
+        QFont dstfont(QString::fromLocal8Bit("Arial"),14); //还原字体
+        textEdit->setFont(dstfont);
+        textEdit->clear();
+    }
+
+    msgBox->exec();
+    delete_s(msgBox);
+}
+
+void SubWindow::showResult(){
+    QString show;
+    if(!toSaveIt){
+        qDebug() << curPath;
+        int charRec = proc::useModel(curPath);
+        if(charRec>=0 && charRec<=9){
+            show = QString('0'+charRec);
+        }
+        else{
+            show = QString("Wrong");
+            qDebug() << "识别失败";
+        }
+    }
+    qDebug() << show;
+
+    this->textEdit->clear();
+    textEdit->setText(show);
+    textEdit->setAlignment(Qt::AlignCenter);
+}
+
 void SubWindow::replaceCode()
 {
-    //更新验证码
-    codeArea->replaceCodePic();
+    if(currentWinType == New)
+        codeArea->replaceCodePic(); //更新验证码
 }
 //将结果送到编辑框，自定义生成的
 void SubWindow::recognizeCode()
 {
-    this->textEdit->clear();
-    textEdit->setText(codeArea->getCode());
-    textEdit->setAlignment(Qt::AlignCenter);
+    if(currentWinType == New){
+        this->textEdit->clear();
+        textEdit->setText(codeArea->getCode());
+        textEdit->setAlignment(Qt::AlignCenter);
+    }
 }
 
 //将识别结果送到编辑框，用dnn获得的
@@ -411,9 +484,7 @@ void SubWindow::tool()
                     switch(type){
                         case New: recognizeCode(); break;//揭晓验证码的答案
                         case Open: case Cut: recognizePic(); break;//调用验证码识别功能
-                        case Draw: {drawdigit->getResult();
-                            qDebug() << "No String Now." ;
-                            break; }//返回识别结果
+                        case Draw: showResult();  break; //返回识别结果
                         default:;
                     }
                     break;
@@ -439,9 +510,9 @@ void SubWindow::tool()
         case 3: {
                     if(type == New) processCodeArea();
                     else{
-                        /*if(type == Draw)
-                            drawdigit->smoothPic();
-                        else*/
+                        if(type == Draw)
+                            genLabels();
+                        else
                             qDebug() << "Not support for Open here.";
                     }
                     break;

@@ -88,7 +88,7 @@ void MainWindow::updateMenus()
     bool hasSelection = (hasSubWindow && activeSubWindow()->getTextEdit()->textCursor().hasSelection());
     cutAct->setEnabled(hasSelection);
     copyAct->setEnabled(hasSelection);
-    setEnabledText(hasSelection);             //这里不怎么会成功
+    setEnabledText(hasSelection);
 
     //非生成验证码子窗口打开着的情况
     bool hasSelectPic = (hasSubWindow && activeSubWindow()->getCurrentWinType() != New);
