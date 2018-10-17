@@ -29,13 +29,11 @@ Image::Image(const string pFilename){
     m_Mat = imread(pFilename);
     //m_Mat = m_Mat(cv::Range::all(), cv::Range(27, 119));
     try {
-        if (m_Mat.empty())
-        {
+        if (m_Mat.empty()){
             throw LoadException(pFilename);
         }
     }
-    catch (LoadException &e)
-    {
+    catch (LoadException &e){
         cerr << e.what() << endl;
         exit(0);
     }
@@ -55,13 +53,11 @@ int Image::LoadImg(const char *pFilename)
 {
     m_Mat = imread(pFilename);
     try {
-        if (m_Mat.empty())
-        {
+        if (m_Mat.empty()){
             throw LoadException(pFilename);
         }
     }
-    catch (LoadException &e)
-    {
+    catch (LoadException &e){
         cerr << e.what() << endl;
         exit(0);
     }
@@ -70,14 +66,14 @@ int Image::LoadImg(const char *pFilename)
     return 1;
 }
 
-void Image::ShowInWindow(const string pWinName){
+void Image::ShowInWindow(const string pWinName) {
     namedWindow(pWinName);
     imshow(pWinName, m_Mat);
 
     waitKey();
 }
 
-void Image::SaveImg(const string pFilepath, Mat& m){
+void Image::SaveImg(const string pFilepath, Mat& m) { 
     imwrite(pFilepath, m);
     std::cout << "Savinging File " << pFilepath << " successfully" << std::endl;
 }
@@ -89,16 +85,14 @@ void Image::SaveImg(const string pFilepath) {
 
 Mat Image::toGray(){
     Mat iGray;
-    if (getChannel() == 3)
-    {
+    if (getChannel() == 3){
         std::cout << "width : " << getWidth() << std::endl;
         std::cout << "height: " << getHeight() << std::endl;
         cvtColor(m_Mat, iGray, COLOR_BGR2GRAY);
         std::cout << "The file has been converted to gray map successfully" << std::endl;
         std::cout << "***********************************" << std::endl;
     }
-    else
-    {
+    else{
         std::cout << "the image file is not RGB file!" << std::endl;
     }
     return iGray;
@@ -119,7 +113,7 @@ void Image::Binarization()
     ucThre = 0;
     ucThre_new = 127;
 
-    std::cout << "Initial Threshold is :" << (int)ucThre_new << std::endl;
+    std::cout << "Initial Threshold is :" << static_cast<int>(ucThre_new) << std::endl;
 
     std::cout << "***********************************" << std::endl;
     while (ucThre != ucThre_new) {
@@ -149,7 +143,7 @@ void Image::Binarization()
         ucThre_new = (nBack_sum + nData_sum) / 2;
     }// end while
 
-    std::cout << "After Binarization threshold is :" << (int)ucThre_new << std::endl;
+    std::cout << "After Binarization threshold is :" << static_cast<int>(ucThre_new) << std::endl;
 
     int nBlack = 0;
     int nWhite = 0;
@@ -199,17 +193,9 @@ void Image::RemoveLine(int nThsd)
     CvMemStorage *storage = cvCreateMemStorage();
     CvSeq *lines = 0;
 
-
     cvCanny(src, dst, 40, 90);
 
-    lines = cvHoughLines2(dst
-        , storage
-        , CV_HOUGH_STANDARD
-        , 1
-        , CV_PI / 180
-        , nThsd
-        , 0
-        , 0);
+    lines = cvHoughLines2(dst, storage, CV_HOUGH_STANDARD, 1, CV_PI / 180, nThsd, 0, 0);
     for (int i = 0;i<MIN(lines->total, 100);i++) {
         float *line = (float*)cvGetSeqElem(lines, i);
         float rho = line[0];
@@ -229,8 +215,7 @@ void Image::RemoveLine(int nThsd)
         if (remove("temp.jpg"))
             throw RemoveException("temp.jpg");
     }
-    catch (RemoveException &e)
-    {
+    catch (RemoveException &e){
         cerr << e.what() << endl;
         exit(0);
     }
@@ -243,35 +228,29 @@ void Image::NaiveRemoveNoise(int pNum)
     int nWidth = getWidth();
     int nHeight = getHeight();
     //set boundry to be white
-    for (i = 0; i < nWidth; ++i)
-    {
+    for (i = 0; i < nWidth; ++i){
         setPixel(i, 0, WHITE);
         setPixel(i, nHeight - 1, WHITE);
     }
-    for (i = 0; i < nHeight; ++i)
-    {
+    for (i = 0; i < nHeight; ++i){
         setPixel(0, i, WHITE);
         setPixel(nWidth - 1, i, WHITE);
     }
     //if the neighbor of a point is white but it is black, delete it
     for (j = 1; j < nHeight; ++j)
-        for (i = 1; i < nWidth; ++i)
-        {
+        for (i = 1; i < nWidth; ++i){
             nValue = getPixel(i, j);
-            if (!nValue)
-            {
+            if (!nValue){
                 nCount = 0;
                 for (m = i - 1; m <= i + 1; ++m)
-                    for (n = j - 1; n <= j + 1; ++n)
-                    {
+                    for (n = j - 1; n <= j + 1; ++n){
                         if (!getPixel(m, n))
                             nCount++;
                     }
                 if (nCount <= pNum)
                     setPixel(i, j, WHITE);
             }
-            else
-            {
+            else{
                 nCount = 0;
                 for (m = i - 1; m <= i + 1; ++m)
                     for (n = j - 1; n <= j + 1; ++n)
@@ -413,7 +392,7 @@ vector<Image> Image::xProjectDivide(int nMin_thsd, int nMax_thsd, bool show)
     if (show) {
         namedWindow("xProjectResult");
         imshow("xProjectResult", xProjectResult);
-        waitKey();
+        waitKey(0);
     }
     /*-----------------show x project map-------------------*/
 
@@ -421,7 +400,7 @@ vector<Image> Image::xProjectDivide(int nMin_thsd, int nMax_thsd, bool show)
     vector<int> vPoint;
     int nMin, nIndex;
     if (xNum[0] > BOUNDRY_NUM) vPoint.push_back(0);
-    for (i = 1;i < nWidth - 1;)
+    for (i = 1; i < nWidth-1;)
     {
         if (xNum[i] < BOUNDRY_NUM)
         {
@@ -432,7 +411,7 @@ vector<Image> Image::xProjectDivide(int nMin_thsd, int nMax_thsd, bool show)
         //find minimum between the min_thsd and max_thsd
         nIndex = i + nMin_thsd;
         nMin = xNum[nIndex];
-        for (j = nIndex;j<i + nMax_thsd;j++)
+        for (j = nIndex; j< i+nMax_thsd; j++)
         {
             if (xNum[j] < nMin)
             {
@@ -448,7 +427,7 @@ vector<Image> Image::xProjectDivide(int nMin_thsd, int nMax_thsd, bool show)
     //save the divided characters in map vector
     int ch_width = nWidth / (vPoint.size() / 2) + EXPAND_WIDTH;
     vector<Image> vImage;
-    for (j = 0; j < (int)vPoint.size(); j += 2)
+    for (j = 0; j < vPoint.size()-1; j += 2)
     {
         Mat *mCharacter = new Mat(nHeight, ch_width, CV_8U, Scalar(WHITE));
         for (i = 0; i < nHeight; ++i)
@@ -458,19 +437,21 @@ vector<Image> Image::xProjectDivide(int nMin_thsd, int nMax_thsd, bool show)
         resize(*mCharacter, *mResized, cv::Size(SCALE, SCALE), 0, 0, CV_INTER_AREA);
         Image iCh(*mResized);
         vImage.push_back(iCh);
+
         delete mCharacter;
+		delete mResized;
     }
     //show divided characters
     if (show) {
         char window_name[12];
-        for (i = 0; i < (int)vImage.size(); ++i)
+        for (i = 0; i < vImage.size(); ++i)
         {
             sprintf(window_name, "Character%d", i);
             //vImage.at(i).NaiveRemoveNoise(1.0f);
             vImage.at(i).ShowInWindow(window_name);
         }
     }
-    delete[]xNum;
+    delete [] xNum;
     return vImage;
 }
 
@@ -709,52 +690,3 @@ void Image::TiltCorrect(Mat *pMat)
     warpAffine(*pMat, rotate_mat, M, cvSize(pMat->cols, pMat->rows), INTER_LINEAR, BORDER_CONSTANT, cvScalar(WHITE));
     rotate_mat.copyTo(*pMat);
 }
-
-
-/*
-Img_pre::Img_pre(std::string p) {
-    img_p = p;
-    cv::Mat color_img = cv::imread(img_p);
-    cv::cvtColor(color_img, image, CV_BGR2GRAY);
-    image = image(cv::Range::all(), cv::Range(27, 119));
-    cv::Mat src = image.clone();
-    cv::GaussianBlur(src, image, cv::Size(3, 3), 0, 0);
-    //std::cout << "image = " << std::endl << cv::format(image, cv::Formatter::FMT_NUMPY) << std::endl;
-    //std::cout << "dims:" << color_img.dims << std::endl;
-    //std::cout << "rows:" << color_img.rows << std::endl;
-    //std::cout << "cols:" << color_img.cols << std::endl;
-    //std::cout << "channels:" << color_img.channels() << std::endl;
-    //std::cout << "type:" << color_img.type() << std::endl;
-    //std::cout << "depth:" << color_img.depth() << std::endl;
-    //std::cout << "elemSize:" << color_img.elemSize() << std::endl;
-    //std::cout << "elemSize1:" << color_img.elemSize1() << std::endl;
-    //std::cout << "dims:" << image.dims << std::endl;
-    //std::cout << "rows:" << image.rows << std::endl;
-    //std::cout << "cols:" << image.cols << std::endl;
-    //std::cout << "channels:" << image.channels() << std::endl;
-    //std::cout << "type:" << image.type() << std::endl;
-    //std::cout << "depth:" << image.depth() << std::endl;
-    //std::cout << "elemSize:" << image.elemSize() << std::endl;
-    //std::cout << "elemSize1:" << image.elemSize1() << std::endl;
-    //std::cout << "1  " << int(image.at<unsigned char>(1, 1)) << std::endl;
-    //std::cout << "2  " << int(image.ptr<unsigned char>(69)[149]) << std::endl;
-}
-
-
-void Img_pre::show_it(cv::Mat img) {
-    cv::imshow("hahaha", img);
-    cv::waitKey(0);
-}
-
-int Img_pre::get_r(){
-    return image.cols;
-}
-
-int Img_pre::get_c() {
-    return image.rows;
-}
-
-cv::Mat Img_pre::get_mat() {
-    return image;
-}
-*/

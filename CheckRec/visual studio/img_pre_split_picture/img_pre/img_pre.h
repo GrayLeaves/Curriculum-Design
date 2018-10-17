@@ -38,47 +38,35 @@ public:
     void Binarization();
     //using Hough line detect method to find the line
     /*
-    * @nThsd is the threshold to judge if to
-    *	     return the line
+    * @nThsd is the threshold to judge if to return the line
     */
     void RemoveLine(int nThsd = 40);
     //Get rid of noise by window detect
     /*
-    * @pNum is the number of black pixel
-    *     in a 3*3 window, default 1
+    * @pNum is the number of black pixel in a 3*3 window, default 1
     */
     void NaiveRemoveNoise(int pNum = 1);
     //Get rid of noise by contour detect
     /*
-    * @pArea is the max area of a connected
-    *     block, default 1
+    * @pArea is the max area of a connected block, default 1
     */
     void ContoursRemoveNoise(double pArea = 1);
     static void ContoursRemoveNoise(cv::Mat &pMat, double pArea = 1);
     //Divide the map into characters by projecting the pixel in X-coordinate
     /*
-    * @nMin_thsd is the min threshold of
-    * 			distance in 2 characters and
-    * 			default 10
-    * @nMax_thsd is the max threahold and
-    * 			default 20
+    * @nMin_thsd is the min threshold of distance in 2 characters and default 10
+    * @nMax_thsd is the max threahold and default 20
     */
     vector<Image> xProjectDivide(int nMin_thsd = 10, int nMax_thsd = 20, bool show = true);
     //divide the map into characters by FloodFill
     /*
-    * @nMin_area is the mininum area of
-    *     a charactor, delete the area
-    *     if its area below this value
-    * @pData is the feature vector of e
-    * 			-ach charactor divided
-    * @pFilename is the class of each
-    * 			marker charactor
-    * @flag is the mark if show each di
-    * 			-vided charactor
+    * @nMin_area is the mininum area of a charactor, delete the area if its area below this value
+    * @pData is the feature vector of each charactor divided
+    * @pFilename is the class of each marker charactor
+    * @flag is the mark if show each divided charactor
     */
     void FloodFillDivide(std::vector<std::string> &pData, int nMin_area = 30, char *pFilename = NULL, int flag = 0);
-    //correct the tilted character by rotating the character from -15 degree to 15 degree
-    //and choose the thinest degree
+    //correct the tilted character by rotating the character from -15 degree to 15 degree and choose the thinest degree
     void TiltCorrect();
     //release Mat OBJ
     void release() {
@@ -104,22 +92,3 @@ private:
 };
 
 #endif		//__IMAGE_H__
-
-
-/*
-#ifndef IMG_PRE
-#define IMG_PRE
-class Img_pre {
-public:
-    Img_pre(std::string);
-    void show_it(cv::Mat);		
-    int get_c();
-    int get_r();
-    cv::Mat get_mat();
-
-private:
-    std::string img_p;
-    cv::Mat image;
-};
-#endif // !IMG_PRE
-*/

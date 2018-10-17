@@ -11,15 +11,12 @@ using namespace cv;
 using namespace cv::ml;
 
 int main() {
-    const int NOfPictures = 1; //Í¼Æ¬Êý
-	const int NumCount = 4;    //Ã¿·ùÍ¼Æ¬×Ö·ûÊý
-	string image_p = "C:\\Users\\wuzhenguang\\Pictures\\";
+    const int NOfPictures = 7; //Í¼Æ¬Êý
+	string image_p = "C:\\Users\\wuzhenguang\\Pictures\\checkcode\\";
 	string save_p = "C:\\Users\\wuzhenguang\\Pictures\\data\\";
-	vector<string> p_data;
-
-	/*Image img(image_p + "1.jpg");
-	Mat Gray;
-	Gray = img.toGray();
+	/*
+	Image img(image_p + "1.jpg");
+	Mat Gray = img.toGray();
 	Mat srcImage = Gray;
 	if (!srcImage.data)
 	{
@@ -50,16 +47,15 @@ int main() {
 	imshow("¡¾Ë«±ßÂË²¨¡¿", dstImage);
 	waitKey(0);*/
     
-	for (int i = 0; i < NOfPictures; i++) {
+	for (int i = 1; i <= NOfPictures; i++) {
 		Image img(image_p + to_string(i) + ".jpg");
-		Mat Gray;
-		Gray = img.toGray();
+		Mat Gray = img.toGray();
 		Image black(Gray);
-		black.RemoveLine(28);
-		black.NaiveRemoveNoise(10);
+		black.RemoveLine(40);
+		black.NaiveRemoveNoise(1);
 		black.Binarization();
-		vector<Image> single_codes = black.xProjectDivide(10, 30, true);
-		black.SaveImg(save_p + "demo.jpg");
+		vector<Image> single_codes = black.xProjectDivide(10, 20, false);
+		//black.SaveImg(save_p + "demo.jpg");
 		for (int j = 0; j < single_codes.size(); j++) {
 			single_codes[j].SaveImg(save_p + to_string(i) + "_" + to_string(j) + ".jpg");
 		}
