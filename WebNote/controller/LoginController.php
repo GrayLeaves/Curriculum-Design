@@ -54,6 +54,17 @@ class LoginController {
             if ($user->login($_POST['username'], $_POST['password'])) {
                 # 用户登录成功,记录用户
                 $_SESSION['loginUser'] = $user;
+                if(!empty($_POST['record'])){
+                    if($_POST['record'] == 'true'){ //设置寿命为1h的cookies 注意传递过来的是字符串,不是布尔值
+                        setcookie("username", $_POST['username'], time()+3600*1*1);
+                        setcookie("password", $_POST['password'], time()+3600*1*1);
+                        setcookie("record", $_POST['record'], time()+3600*1*1);
+                    }else{  //删除cookies
+                        setcookie("username", $_POST['username'], time()+3600*1*1); //保留用户名
+                        setcookie("password", '', time()-3600*1*1);
+                        setcookie("record", '', time()-3600*1*1);
+                    }
+                }
             }
             echo json_encode(['error' => $user->getError()]);
             return;

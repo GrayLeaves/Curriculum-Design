@@ -28,16 +28,17 @@
               <!--<label for="username">UserName</label>-->
               <span class="input-group-addon" style="border:1px #bfc9ca solid; background-color:white;">
                 <a class="glyphicon glyphicon-user" style="text-decoration:none"></a></span>
-              <input type="text" name="username" value="<?= $loginUser->name ?? '' ?>" class="form-control" id="username" placeholder="账号">
+              <input type="text" name="username" value="<?= $_COOKIE['username'] ?? '' ?>" class="form-control" id="username" placeholder="账号">
+              <!--<?= $loginUser->name ?? '' ?>-->
             </div>
             <div class="form-group input-group">
               <!--<label for="password">PassWord</label>-->
               <span class="input-group-addon" style="border:1px #bfc9ca solid;background-color:white;">
                 <a class="glyphicon glyphicon-lock" style="text-decoration:none"></a></span>
-                <input type="password" name="password" value="" class="form-control" id="password" placeholder="密码">
+                <input type="password" name="password" value="<?= $_COOKIE['password'] ?? '' ?>" class="form-control" id="password" placeholder="密码">
             </div>
             <div class="comp pull-left" style="padding: 0px 5px;">
-              <input type="checkbox" name="remember[]" value="" style="font-size:12px;"> 记住密码?
+              <input id="checkbox" type="checkbox" name="remember" value="" <?php if(isset($_COOKIE['password'])) echo 'checked';?> style="font-size:12px;">记住密码?
             </div>
             <div class="comp pull-right" style="padding: 0px 5px;">
               <a class="pull-right text-primary " id="update" style="text-decoration:none; font-size:13px; " href="#">重置密码?</a>
@@ -62,7 +63,6 @@
             <h6><font face="Courier New" color="#696969" size="2">注:若刚注册账户或重置密码,需刷新查看</font></h6>
             <div class="col-xs-12 text-muted" id="users" style="display:none">
               <?php 
-                //$users = array(array("1", "wzg", "2745351", "1"));
                 if(!empty($users)){
                     echo "<table width='400' border='1' align='center'><tr align='center'>";
                     echo "<td>序号</td><td>账户</td><td>密码</td><td>等级</td><td>操作</td></tr>";
@@ -122,6 +122,8 @@
         });
         
         $('#login').on('click', function(e) {
+            var record = document.getElementById('checkbox').checked;
+            //alert(record);
             var username = $('#username').val();
             if ($.trim(username) == '') {
                 $('#username').focus();
@@ -136,6 +138,7 @@
             }
             $.post('index.php', {
                 action: 'login',
+                record: record,
                 username: username,
                 password: password
             }, function(result) {
