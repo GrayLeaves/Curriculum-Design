@@ -92,7 +92,7 @@ class UserModel extends SQLModel {
         
         # 创建用户
         if(!$update){
-            $sql = "insert into {$this->table} (name, password) values('$username', '$password')"; //注意{}和''的区别
+            $sql = "insert into {$this->table} (name, password, rank) values('$username', '$password', 3)"; //注意{}和''的区别
             $result = $this->query($sql);
             if (!empty($this->error)) {
                 $this->error = '很遗憾,创建用户失败';

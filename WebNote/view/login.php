@@ -175,7 +175,6 @@
                     alert(result.error);
                     return;
                 }
-                //location.reload();
                 location.href = 'index.php';
             }, 'json');
         });

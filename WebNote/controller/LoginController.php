@@ -118,4 +118,18 @@ class LoginController {
             }
         }
     }
+    
+    public function actSearch() {
+        session_start();
+        $_SESSION['value'] = '';
+        if (!empty($_POST['value'])){
+            $_SESSION['value'] = $_POST['value'];
+        }
+        else{
+            session_start();
+            unset($_SESSION['value']);
+            header('Location: index.php');
+        }
+        include 'view/head.php';
+    }
 }

@@ -3,8 +3,14 @@
 require 'model/NoteModel.php';
 
 $model = new NoteModel();
-$records = $model->read($user->id);
-$error = $model->getError();
+if (empty($_SESSION['value'])){
+    $records = $model->read($user->id);
+    $error = $model->getError();
+}else{
+    $records = $model->search($_SESSION['value'], $user->id);
+    $error = $model->getError();
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -51,7 +57,7 @@ $error = $model->getError();
       <div class="row">
         <div class="col-sm-12 col-md-10 col-md-offset-1 col-lg-8 col-lg-offset-2">
           <div class="form-group input-group" action="search.php" method="get" style="min-width:500px; padding: 0px 150px 0px 150px">
-	        <input type="search" name="find" class="form-control" placeholder="笔记查询" />
+	        <input type="search" id="find" name="find" value="<?= $_SESSION['value'] ?? '' ?>" class="form-control" placeholder="请输入关键字" />
             <span class="input-group-addon" style="border:1px #bfc9ca solid;background-color:white;">
             <a class="glyphicon glyphicon-search" style="text-decoration:none" href=""></a></span>
 		  </div>
@@ -62,11 +68,21 @@ $error = $model->getError();
           <!--note-list-->
           <?php if (!empty($error)) { ?>
           <h4 class="text-center text-danger"><?= $error ?></h4>
-          <?php } else if (count($records) == 0) { ?>
-          <h4 class="text-center">〒_〒没找到笔记, 请点击按钮创建在线笔记吧( ●'◡'● )</h4>
-          <?php } else { $rank = 0; ?>
-            <?php foreach ($records as $record) {  $rank += 1; ?>
-            <h4><a class="pull-left text-primary glyphicon glyphicon-grain" style="text-decoration:none; padding: 0px 2px 0px 0px" ></a>
+          <?php } else{
+              if (count($records) == 0){
+                if(!empty($_SESSION['value'])){ ?>
+                  <h4 class="text-center">〒_〒没找到笔记,请清空条件查看全部笔记吧( ●'◡'● )</h4>
+          <?php } else{ ?>
+                  <h4 class="text-center">〒_〒没有任何笔记,请点击‘+’创建公共笔记或点击按钮创建私人笔记( ●'◡'● )</h4>
+            <?php } 
+              } else { $rank = 0; ?>
+            <?php 
+            foreach ($records as $record) {  $rank += 1; ?>
+              <?php if($record['who']==0){ ?>
+                <h4><a class="pull-left text-primary glyphicon glyphicon-flash" style="text-decoration:none; padding: 0px 2px 0px 0px" ></a>
+              <?php } else { ?>
+                <h4><a class="pull-left text-primary glyphicon glyphicon-grain" style="text-decoration:none; padding: 0px 2px 0px 0px" ></a>
+              <?php } ?>
             <font face="Courier New" color="#696969"> <?= $rank ?>
               <?= $record['title'] ?></font>
               <span class="pull-right">
@@ -84,8 +100,9 @@ $error = $model->getError();
                 <?= $record['content'] ?>
             </div>
             <br/>
-            <?php } ?>
-          <?php } ?>
+            <?php } //foreach?>
+          <?php } //count($records)!=0 ?>
+          <?php } //empty(error) ?>
         </div>
       </div>
       <div class="row">
@@ -124,6 +141,29 @@ $error = $model->getError();
                 location.reload();
             }, 'json');
         });
+        
+        $('.glyphicon-search').on('click', function(e) {
+            var value = document.getElementById('find').value;
+            /*if ($.trim(value) == '') {
+                $('#find').focus();
+                //alert('请输入要搜索的内容');
+                location.reload();
+                return;
+            }*/
+            //alert(location.href.substring(0,location.href.lastIndexOf('/')) + value);
+            $.post('index.php', {
+                action: 'search',
+                value: $.trim(value)
+            }, function(result) {
+                if (result && result.error) {
+                    alert(result.error);
+                    return;
+                }
+                //location.reload();
+                location.href = 'index.php';
+            }, 'json');
+        });
+        
     });
     function show(){
         document.getElementById('content-'+which).style.display='block';

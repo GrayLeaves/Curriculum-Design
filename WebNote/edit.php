@@ -15,7 +15,7 @@ if (!empty($_POST['note'])) {
         $model->create($_POST['note']);
         echo json_encode(['error' => $model->getError()]);
         return;
-    }  
+    }
 }
 
 $record = [];
@@ -81,7 +81,9 @@ if (!empty($_REQUEST['id'])) {
           </div>
           <br>
           <div class="form-group text-center">
-            <button class="btn btn-primary btn-lg" id="submit" type="button" style="min-width: 300px;">保存提交</button>
+            <button class="btn btn-primary btn-lg" id="submit" type="button" style="min-width: 160px;">保存提交</button>
+            <button class="btn btn-primary btn-lg" id="return" type="button" style="min-width: 160px;">取消返回</button>
+            <!--onClick="location.href='index.php'"-->
           </div>
           <?php } ?>
           <br>
@@ -107,6 +109,7 @@ if (!empty($_REQUEST['id'])) {
         ClassicEditor.create(document.querySelector("#editor")).then(editor => {
             editorText = editor;
         }).catch(error => {console.error(error.stack);});
+        
         $('#submit').on('click', function(e) {
             var title = $('#title').val();
             if ($.trim(title) == '') {
@@ -137,6 +140,12 @@ if (!empty($_REQUEST['id'])) {
                 }
                 location.href = 'index.php';
             }, 'json');
+        });
+        $('#return').on('click', function(e) {
+            if (!confirm('是否放弃所有的改动呢？( ╯□╰ )')) {
+                return;
+            }
+            location.href = 'index.php';
         });
     });
     </script>

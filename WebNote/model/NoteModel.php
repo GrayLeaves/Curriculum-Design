@@ -36,7 +36,21 @@ class NoteModel {
             return $result === false ? [] : $result;
         }
     }
-
+    
+    /**
+     * 根据title查询笔记
+     * @param value: 关键字
+     * @return array
+     */
+    public function search(string $value, string $who): array
+    {
+        # 生成查询语句
+        $value = '%'.$value.'%';
+        $sql = "SELECT * FROM {$this->table} where title like '$value' and who={$who} or title like '$value' and who=0";
+        $result = $this->query($sql);
+        return $result === false ? [] : $result;
+    }
+    
     /**
      * 读取一条笔记
      * @param string $id 笔记ID
