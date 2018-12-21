@@ -30,9 +30,9 @@ class UserModel extends SQLModel {
             $this->error = '密码为空,请输入密码';
             return false;
         }
-        # 生成用户验证语句
-        $sql = "SELECT * FROM {$this->table} where name='$username' and password='$password'"; //注意{}和''的区别
-        $result = $this->query($sql, ['name' => $username, 'password' => $password]);
+        # 生成用户验证语句,注意{}和''的区别
+        $sql = "SELECT * FROM {$this->table} where name=:name and password=:password"; 
+        $result = $this->query($sql, [':name' => $username, ':password' => $password]);
         if (empty($this->error) && count($result) > 0) {
             $this->setup($result[0]);   //已填充数据,便于查询
             return true;
@@ -55,8 +55,8 @@ class UserModel extends SQLModel {
             return false;
         }
         # 生成用户验证语句
-        $sql = "SELECT * FROM {$this->table} where name='$username'"; //注意{}和''的区别
-        $result = $this->query($sql);
+        $sql = "SELECT * FROM {$this->table} where name=:name";
+        $result = $this->query($sql, [':name' => $username]);
         if (count($result) == 0 && empty($this->error)) {
             if(!$update) return true;
             else{
@@ -92,8 +92,8 @@ class UserModel extends SQLModel {
         
         # 创建用户
         if(!$update){
-            $sql = "insert into {$this->table} (name, password, rank) values('$username', '$password', 3)"; //注意{}和''的区别
-            $result = $this->query($sql);
+            $sql = "insert into {$this->table} (name, password, rank) values(:name, :password, 3)"; //注意{}和''的区别
+            $result = $this->query($sql, [':name' => $username, ':password' => $password]);
             if (!empty($this->error)) {
                 $this->error = '很遗憾,创建用户失败';
                 return false;
@@ -101,8 +101,8 @@ class UserModel extends SQLModel {
             return true;
         }
         else{
-            $sql = "update {$this->table} set password='$password' where name='$username'"; //注意{}和''的区别
-            $result = $this->query($sql);
+            $sql = "update {$this->table} set password=:password where name=:name"; //注意{}和''的区别
+            $result = $this->query($sql, [':password' => $password, ':name' => $username]);
             if (!empty($this->error)) {
                 $this->error = '很遗憾,重置密码失败';
                 return false;
@@ -118,8 +118,8 @@ class UserModel extends SQLModel {
             return false;
         }
         # 删除用户
-        $sql = "delete from {$this->table} where id = {$id}"; //注意{}和''的区别
-        $result = $this->query($sql);
+        $sql = "delete from {$this->table} where id = :id"; //注意{}和''的区别
+        $result = $this->query($sql, [':id' => $id]);
         if (!empty($this->error)) {
             $this->error = '很遗憾,删除用户失败';
             return false;

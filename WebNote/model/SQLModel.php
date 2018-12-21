@@ -30,7 +30,7 @@ class SQLModel {
         $pdo = null;
         try {
             $pdo = new PDO($this->dsn, $this->user, $this->password);
-            $pdo->query('set character set utf8');
+            //$pdo->query('set character set utf8');
         } catch (PDOException $e) {
             $this->error = '数据库连接错误：' . $e->getMessage();
             return false;

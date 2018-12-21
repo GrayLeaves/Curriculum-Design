@@ -1,5 +1,4 @@
 <?php
-### 需要安装PDO与PDO_MYSQL库
 
 require 'model/NoteModel.php';
 
@@ -44,20 +43,6 @@ if (!empty($_REQUEST['id'])) {
   </head>
   <body>
     <div class="container">
-      <!--<div id="header" class="neighbort-header new shift-with-hiw pc">
-        <div class="regular-header regular-header--new clearfix" id="new-header">
-          <div class="comp pull-left" style="padding: 0px 0px;">
-            <span style="float: left;">
-              <img src="logo.png" style="width: 60px;">
-            </span>
-            <span style="float: left;">
-              <h3 style="margin: 0; font-size: 30px; color: #2F4F4F; padding: 15px 0px 0px 0px">WebNote</h3>
-            </span>
-          </div>
-          <div class="clearfix"></div>
-          <hr/>
-        </div>
-      </div>-->
       <div class="row">
         <div class="col-xs-12">
           <h1 class="text-center"><img src="logo.png" style="width: 60px;"><font face="Courier New" color="gray" size="6">WebNote</font></h1>
@@ -94,16 +79,6 @@ if (!empty($_REQUEST['id'])) {
     <script src="js/jquery-3.2.1.js"></script>
     <script src="ckeditor5/ckeditor.js"></script>
     <script type="text/javascript">
-    /*function getQueryVariable(variable) //js get url params
-    {
-       var query = window.location.search.substring(1);
-       var vars = query.split("&");
-       for (var i=0;i<vars.length;i++) {
-               var pair = vars[i].split("=");
-               if(pair[0] == variable){return pair[1];}
-       }
-       return(false);
-    }*/
     $(function() {
         var editorText = null;
         ClassicEditor.create(document.querySelector("#editor")).then(editor => {

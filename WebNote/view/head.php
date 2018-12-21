@@ -144,12 +144,6 @@ if (empty($_SESSION['value'])){
         
         $('.glyphicon-search').on('click', function(e) {
             var value = document.getElementById('find').value;
-            /*if ($.trim(value) == '') {
-                $('#find').focus();
-                //alert('请输入要搜索的内容');
-                location.reload();
-                return;
-            }*/
             //alert(location.href.substring(0,location.href.lastIndexOf('/')) + value);
             $.post('index.php', {
                 action: 'search',

@@ -1,38 +1,32 @@
 <?php
 ### 需要安装PDO与PDO_MYSQL库
-
+require_once 'model/SQLModel.php';
 /**
  * 笔记数据模型
  * 实现note表的增删改查
  */
-class NoteModel {
-    /** 数据库连接串 */
-    private $dsn = 'mysql:host=localhost; port=3306; dbname=php';
-    /** 用户名 */
-    private $user = 'root';
-    /** 密码 */
-    private $password = '';
+class NoteModel extends SQLModel{
     /** 表名 */
-    private $table = 'note';
-    /** 错误信息 */
-    private $error = '';
+    protected $table = 'note';
+    /** 字段列表 */
+    protected $fields = ['id', 'who', 'title', 'content', 'date_created', 'date_modified'];
 
     /**
      * 读取所有笔记
      * @param who :0表示共享笔记(默认),其他则对应用户的专属笔记
      * @return array
      */
-    public function read(string $who): array
+    public function read(int $who): array
     {
         # 生成查询语句
-        if($who=='0'){
+        if($who==0){
             $sql = "SELECT * FROM {$this->table} where who=0";
             $result = $this->query($sql);
             return $result === false ? [] : $result;
         }
         else{
-            $sql = "SELECT * FROM {$this->table} where who={$who} or who=0";
-            $result = $this->query($sql);
+            $sql = "SELECT * FROM {$this->table} where who=:who or who=0";
+            $result = $this->query($sql, [':who' => $who]);
             return $result === false ? [] : $result;
         }
     }
@@ -42,21 +36,21 @@ class NoteModel {
      * @param value: 关键字
      * @return array
      */
-    public function search(string $value, string $who): array
+    public function search(string $value, int $who): array
     {
         # 生成查询语句
         $value = '%'.$value.'%';
-        $sql = "SELECT * FROM {$this->table} where title like '$value' and who={$who} or title like '$value' and who=0";
-        $result = $this->query($sql);
+        $sql = "SELECT * FROM {$this->table} where title like :value and who=:who or title like :value and who=0";
+        $result = $this->query($sql, [':value' => $value, ':who' => $who]);
         return $result === false ? [] : $result;
     }
     
     /**
      * 读取一条笔记
-     * @param string $id 笔记ID
+     * @param int $id 笔记ID
      * @return array
      */
-    public function find(string $id): array
+    public function find(int $id): array
     {
         # 验证数据
         if (empty($id)) {
@@ -155,7 +149,7 @@ class NoteModel {
 
     /**
      * 删除用户全部笔记
-     * @param string $who 用户代码
+     * @param string $who 用户对象
      * @return bool
      */
     public function truncate(string $who)
@@ -173,56 +167,5 @@ class NoteModel {
             return false;
         }
         return true;
-    }
-    
-    /**
-     * 执行SQL语句
-     * @param string $sql SQL语句
-     * @param array $params SQL参数
-     * @return bool
-     */
-    protected function query(string $sql, array $params = [])
-    {
-        # 连接数据库
-        $pdo = null;
-        try {
-            $pdo = new PDO($this->dsn, $this->user, $this->password);
-        } catch (PDOException $e) {
-            $this->error = '数据库连接错误：' . $e->getMessage();
-            return false;
-        }
-
-        # 执行SQL语句
-        $stm = $pdo->prepare($sql, [
-            PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY
-        ]);
-        if (!$stm) {
-            $this->error = 'SQL语句或参数有错';
-        }
-        if (!$stm->execute($params)) {
-            $this->error = 'SQL执行出错：' . $stm->errorInfo();
-            return false;
-        }
-
-        # 获取返回结果
-        $column = $stm->columnCount();
-        if ($column > 0) {
-            # 获取结果集
-            $rows = $stm->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($rows as &$row) {
-                $row = array_change_key_case($row, CASE_LOWER);
-            }
-            return $rows;
-        }
-        return $stm->rowCount();
-    }
-
-    /**
-     * 获取错误信息
-     * @return string
-     */
-    public function getError(): string
-    {
-        return $this->error;
     }
 }
