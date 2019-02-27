@@ -1,5 +1,6 @@
 #ifndef DRAWDIGIT_H
 #define DRAWDIGIT_H
+
 #include <QWidget>
 #include <QtGui>
 #include <QMouseEvent>

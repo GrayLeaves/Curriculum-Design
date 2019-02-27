@@ -1,26 +1,39 @@
-#include "mainwindow.h"
-#include "subwindow.h"
+#include "windows/mainwindow.h"
+#include "windows/subwindow.h"
 #include "recentopened/recentopened.h"
 #include "histogram/histogram.h"
 #include "proc.h"
 
 void SubWindow::cleanImage()
 {
+
     //清除子窗口的已生成的验证码,
-    scene->clear();
-    view->resetTransform();
+    openView* view = nullptr;
+    try{
+        view = dynamic_cast<openView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
+    view->scene->clear();
+    view->gview->resetTransform();
 }
 
 void SubWindow::updateImage(const QPixmap &pix)
 {
+    openView* view = nullptr;
+    try{
+        view = dynamic_cast<openView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
    //更新图片
    cleanImage();
-   pixmapItem = scene->addPixmap(pix);                      //显示导入的验证码
-   scene->setSceneRect(QRectF(pix.rect()));                  //设置显示大小
-   view->setScene(scene);
+   pixmapItem = view->scene->addPixmap(pix);                      //显示导入的验证码
+   view->scene->setSceneRect(QRectF(pix.rect()));                  //设置显示大小
+   view->gview->setScene(view->scene);
    qDebug() << "depth:" << pix.depth();
    qDebug() << "hasAlpha:" << pix.hasAlpha();
-   qDebug() << "repaintScene"  << scene->items().count();
+   qDebug() << "repaintScene"  << view->scene->items().count();
 }
 
 void SubWindow::restoreImage()
@@ -98,8 +111,8 @@ void MainWindow::NewImage()
     //关联子窗体的信号：关闭原有的窗口，重新导入同类型文件
     connect(subwindow,&SubWindow::reOpenImage,this,&MainWindow::reLoadImage);
     //根据QTextEdit类鉴别复制、剪切和复制是否可用
-    connect(subwindow->getTextEdit(), SIGNAL(copyAvailable(bool)),cutAct, SLOT(setEnabled(bool)));
-    connect(subwindow->getTextEdit(), SIGNAL(copyAvailable(bool)),copyAct, SLOT(setEnabled(bool)));
+    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),cutAct, SLOT(setEnabled(bool)));
+    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),copyAct, SLOT(setEnabled(bool)));
     subwindow->newFile();
     subwindow->show();
     setEnabledText(true);              //使得字体设置菜单可用
@@ -322,9 +335,9 @@ QImage proc::Invert(const QImage &origin)
     QImage newImg = QImage(width, height, QImage::Format_RGB32);
     for (int x=0; x<width; x++) {
         for(int y=0; y<height; y++) {
-            gray = qGray(origin.pixel(x,y));
+            gray = qGray(origin.pixel(x, y));
             newGray = 255 - gray;
-            newImg.setPixel(x,y,qRgb(newGray, newGray, newGray));
+            newImg.setPixel(x, y, qRgb(newGray, newGray, newGray));
         }
     }
     return newImg;
@@ -341,11 +354,11 @@ QImage proc::LaplaceSharpen(const QImage &origin)
 {
     cv::Mat mat = QImageToMat(origin);
     // Remove noise by blurring with a Gaussian filter ( kernel size = 3 )
-    cv::GaussianBlur(mat, mat, cv::Size(3, 3), 0, 0, BORDER_DEFAULT);
-    cv::cvtColor(mat, mat, COLOR_BGR2GRAY);
+    cv::GaussianBlur(mat, mat, cv::Size(3, 3), 0, 0, cv::BORDER_DEFAULT);
+    cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
     int ddepth = CV_16S, kernel_size = 3, scale = 1, delta = 0;
     cv::Mat dst, abs_dst;
-    cv::Laplacian( mat, dst, ddepth, kernel_size, scale, delta, BORDER_DEFAULT );
+    cv::Laplacian( mat, dst, ddepth, kernel_size, scale, delta, cv::BORDER_DEFAULT );
     // converting back to CV_8U
     cv::convertScaleAbs( dst, abs_dst );
     return MatToQImage(abs_dst);
@@ -356,11 +369,11 @@ QImage proc::SobelEdge(const QImage &origin)
     int ddepth = CV_16S, ksize = 3, scale = 1, delta = 0;
     cv::Mat mat = QImageToMat(origin);
     // Remove noise by blurring with a Gaussian filter ( kernel size = 3 )
-    cv::GaussianBlur(mat, mat, cv::Size(3, 3), 0, 0, BORDER_DEFAULT);
-    cv::cvtColor(mat, mat, COLOR_BGR2GRAY);
+    cv::GaussianBlur(mat, mat, cv::Size(3, 3), 0, 0, cv::BORDER_DEFAULT);
+    cv::cvtColor(mat, mat, cv::COLOR_BGR2GRAY);
     cv::Mat grad, grad_x, grad_y, abs_grad_x, abs_grad_y;
-    cv::Sobel(mat, grad_x, ddepth, 1, 0, ksize, scale, delta, BORDER_DEFAULT);
-    cv::Sobel(mat, grad_y, ddepth, 0, 1, ksize, scale, delta, BORDER_DEFAULT);
+    cv::Sobel(mat, grad_x, ddepth, 1, 0, ksize, scale, delta, cv::BORDER_DEFAULT);
+    cv::Sobel(mat, grad_y, ddepth, 0, 1, ksize, scale, delta, cv::BORDER_DEFAULT);
     // converting back to CV_8U
     convertScaleAbs(grad_x, abs_grad_x);
     convertScaleAbs(grad_y, abs_grad_y);

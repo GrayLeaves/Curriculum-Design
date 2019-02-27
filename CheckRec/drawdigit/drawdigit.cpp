@@ -2,6 +2,8 @@
 #include <QtGui>
 #include <QPen>
 #include "common.h"
+
+
 DrawDigit::DrawDigit(QWidget *parent):QWidget(parent)
 {
     setAutoFillBackground(true);
@@ -11,7 +13,7 @@ DrawDigit::DrawDigit(QWidget *parent):QWidget(parent)
     last_pix = new QPixmap(size());
     last_pix->fill(Qt::white);
     pix = new QPixmap(size()); //绘板
-    pix->fill(Qt::white); //白底黑字
+    pix->fill(Qt::white);      //白底黑字
 }
 
 DrawDigit::~DrawDigit(){
@@ -26,8 +28,8 @@ void DrawDigit::mousePressEvent(QMouseEvent *e)
 
 void DrawDigit::mouseMoveEvent(QMouseEvent *e)
 {
-    int d = square_dist(e->pos(),startPos);
-    if(d > width*3){
+    int d = square_dist(e->pos(), startPos);
+    if(d > width*5){
         QPainter paint;
         QPen pen;
         pen.setStyle(Qt::SolidLine); //线形
@@ -37,7 +39,7 @@ void DrawDigit::mouseMoveEvent(QMouseEvent *e)
         paint.setPen(pen);
         paint.drawLine(startPos,e->pos());
         paint.end();
-        startPos =e->pos(); //跟踪绘制
+        startPos = e->pos(); //跟踪绘制
         update();
     }
 }

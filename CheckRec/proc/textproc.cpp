@@ -1,35 +1,35 @@
-#include "mainwindow.h"
-#include "subwindow.h"
+#include "windows/mainwindow.h"
+#include "windows/subwindow.h"
 #include "common.h"
 
 void MainWindow::undo()
 {
     if(activeSubWindow())
-        activeSubWindow()->getTextEdit()->undo();
+        activeSubWindow()->subView->textEdit->undo();
 }
 
 void MainWindow::redo()
 {
     if(activeSubWindow())
-        activeSubWindow()->getTextEdit()->redo();
+        activeSubWindow()->subView->textEdit->redo();
 }
 
 void MainWindow::cut()
 {
     if (activeSubWindow())
-        activeSubWindow()->getTextEdit()->cut();
+        activeSubWindow()->subView->textEdit->cut();
 }
 
 void MainWindow::copy()
 {
     if (activeSubWindow())
-        activeSubWindow()->getTextEdit()->copy();
+        activeSubWindow()->subView->textEdit->copy();
 }
 
 void MainWindow::paste()
 {
     if (activeSubWindow())
-        activeSubWindow()->getTextEdit()->paste();
+        activeSubWindow()->subView->textEdit->paste();
 }
 
 void MainWindow::setEnabledText(bool ok)
@@ -145,7 +145,7 @@ void MainWindow::textColor()
 {
     if(activeSubWindow())
     {
-        QColor col = QColorDialog::getColor(activeSubWindow()->getTextEdit()->textColor(), this);
+        QColor col = QColorDialog::getColor(activeSubWindow()->subView->textEdit->textColor(), this);
         if (!col.isValid())
             return;
         QTextCharFormat fmt;
@@ -200,7 +200,7 @@ void MainWindow::textChangedUpdate()
 {
     if(activeSubWindow())
     {
-        QFont font = activeSubWindow()->getTextEdit()->currentFont();
+        QFont font = activeSubWindow()->subView->textEdit->currentFont();
         fontChanged(font);
     }
 }
@@ -220,22 +220,22 @@ void MainWindow::about()
 //格式设置
 void SubWindow::mergeFormat(const QTextCharFormat &format)
 {
-    QTextCursor cursor = this->textEdit->textCursor();
+    QTextCursor cursor = subView->textEdit->textCursor();
     if (!cursor.hasSelection()) //选择光标下的单词，如不在则不选择对应文本
         cursor.select(QTextCursor::WordUnderCursor);
     cursor.mergeCharFormat(format);
-    this->textEdit->mergeCurrentCharFormat(format);
+    subView->textEdit->mergeCurrentCharFormat(format);
 }
 
 //段落对齐设置
 void SubWindow::setAlign(int align)
 {
     if (align == 1)
-        this->textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
+        subView->textEdit->setAlignment(Qt::AlignLeft | Qt::AlignAbsolute);
     else if (align == 2)
-        this->textEdit->setAlignment(Qt::AlignHCenter);
+        subView->textEdit->setAlignment(Qt::AlignHCenter);
     else if (align == 3)
-        this->textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
+        subView->textEdit->setAlignment(Qt::AlignRight | Qt::AlignAbsolute);
     else if (align == 4)
-        this->textEdit->setAlignment(Qt::AlignJustify);
+        subView->textEdit->setAlignment(Qt::AlignJustify);
 }

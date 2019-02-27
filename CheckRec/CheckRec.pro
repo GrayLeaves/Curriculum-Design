@@ -33,28 +33,30 @@ LIBS += D:/Qt/OpenCV_Build/install/x86/mingw/bin/libopencv_*.dll \
         # $$PWD/recognition/classification_dll.lib
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
-    subwindow.cpp \
+    windows/mainwindow.cpp \
+    windows/subwindow.cpp \
     checkcode/checkcode.cpp \
-    textproc.cpp \
+    proc/textproc.cpp \
+    proc/imageproc.cpp \
     screencut/screencut.cpp \
-    imageproc.cpp \
     screencut/dialog.cpp \
     recentopened/recentopened.cpp \
     histogram/histogram.cpp \
     drawdigit/drawdigit.cpp \
-    drawdigit/trainwithtest.cpp
+    drawdigit/trainwithtest.cpp \
+    windows/subwindow_view.cpp
 
-HEADERS  += mainwindow.h \
-    subwindow.h \
+HEADERS  += windows/mainwindow.h \
+    windows/subwindow.h \
     checkcode/checkcode.h \
     screencut/dialog.h \
-    proc.h \
+    proc/proc.h \
     recentopened/recentopened.h \
     common.h \
     histogram/histogram.h \
     ui_mainwindow.h \
     drawdigit/drawdigit.h \
+    windows/subwindow_view.h
 	
 #qt designer -- no use
 FORMS    += mainwindow.ui

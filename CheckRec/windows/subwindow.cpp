@@ -1,15 +1,14 @@
+//#include "recognition/recognition.h"
 #include "subwindow.h"
 #include "drawdigit/drawdigit.h"
 #include "common.h"
-#include "proc.h"
-//#include "recognition/recognition.h"
+#include "proc/proc.h"
 #include <string>
 #include <QtMath>
 #include <QTextStream>
 #include <QString>
 /*
  * 设置窗口编号
- * 设置文件状态为为保存isUntitled = True
  * 保存文件路径，为curFile赋初值
  * 设置子窗口标题
  * 关联文档内容改变信号contentsChange()到显示文档更改状态标志槽documentWasModified()
@@ -17,191 +16,82 @@
 
 SubWindow::SubWindow(winType type) : currentWinType(type)
 {
-    switch(type){
-        case New: generateNew();   break;
-        case Open: generateOpen(); break;
-        case Cut: generateCut();   break;
-        case Draw: generateDraw(); break;
-        default: ;
-    }
+    subView = createView(type);
+    subView->generateView();
+    setLayout(subView->mainLayout);
+    all_connect(type);
     setAttribute(Qt::WA_DeleteOnClose);    //设置在主窗口关闭时销毁这个类的对象实例
+}
+
+void SubWindow::all_connect(winType type)
+{
+    connect(subView->functionBtn,SIGNAL(clicked()),this,SLOT(tool()));
+    switch(type){
+        case New:  break;
+        case Open: {
+            openView* view = nullptr;
+            try{
+                view = dynamic_cast<openView *>(subView);
+            }catch (std::bad_cast& bc){
+                qDebug() << "bad_cast caught: " << bc.what();
+            }
+            //关联信号到槽，将spinbox - slider - zoomInOut 关联起来
+            connect(view->spinbox,SIGNAL(valueChanged(int)),view->slider,SLOT(setValue(int)));
+            connect(view->slider,SIGNAL(valueChanged(int)),view->spinbox,SLOT(setValue(int)));
+            connect(view->slider,SIGNAL(valueChanged(int)),this,SLOT(zoomInOut(int)));
+            connect(view->zoomin,SIGNAL(clicked()), this, SLOT(zoomIn()));
+            connect(view->zoomout,SIGNAL(clicked()), this, SLOT(zoomOut()));
+        } break;
+        case Cut: break;
+        case Draw:{
+            drawView* view = nullptr;
+            try{
+                view = dynamic_cast<drawView *>(subView);
+            }catch (std::bad_cast& bc){
+                qDebug() << "bad_cast caught: " << bc.what();
+            }
+            connect(view->widthSpinBox, SIGNAL(valueChanged(int)), view->drawdigit, SLOT(setWidth(int)));
+        } break;
+        default:;
+    }
+}
+SubView* SubWindow::createView(winType type){ //static
+    SubView* view = nullptr;
+    switch(type){
+        case New: view = new newView(); break;
+        case Open: view = new openView(); break;
+        case Cut: view = new cutView(); break;
+        case Draw: view = new drawView(); break;
+        default:;
+    }
+    return view;
 }
 
 SubWindow::~SubWindow()
 {
-    delete_s(size);
+    /*delete_s(size);
     delete_s(codeArea);
     delete_s(scene);
     delete_s(slider);
     delete_s(textEdit);
-    delete_s(msgBox);
-}
-void SubWindow::generateNew(){
-    codeArea = new CodeArea;      // 生成验证码
-    codeArea->setFixedSize(150,77); // 指定区域，防止窗口缩放中变形
-    generateTextCnt();              // 生成编辑框，提示信息组合框和按钮
-    mainLayout = new QVBoxLayout; //实现布局
-    mainLayout->addWidget(codeArea,0,Qt::AlignCenter);
-    mainLayout->setSpacing(5);
-
-    textLayout = new QHBoxLayout;
-    textLayout->addWidget(userText);                //提示信息
-    textLayout->addWidget(textEdit);                //编辑框
-    mainLayout->addLayout(textLayout);
-    btnLayout = new QHBoxLayout();
-    btnLayout->addWidget(combox);                  //菜单栏
-    btnLayout->addWidget(functionBtn);             //功能按钮
-    mainLayout->addLayout(btnLayout);
-    //resize(180,200);
-    setLayout(mainLayout);
-}
-void SubWindow::generateOpen(){
-    generateView(); // 图形视图，生成图片像素的标签和初始化graphics/view
-    generateTextCnt(); // 生成编辑框，提示信息组合框和按钮
-    mainLayout = new QVBoxLayout; //实现布局
-    mainLayout->addWidget(size); //显示验证码像素值
-    mainLayout->setSpacing(5);  //分割区域
-    //缩放控制子布局
-    zoomLayout = new QHBoxLayout;
-    zoomLayout->addWidget(spinbox);
-    zoomLayout->addWidget(zoomout);
-    zoomLayout->addWidget(slider);
-    zoomLayout->addWidget(zoomin);
-    mainLayout->addWidget(view);
-    mainLayout->addLayout(zoomLayout);
-    mainLayout->setSpacing(5);
-
-    textLayout = new QHBoxLayout;
-    textLayout->addWidget(userText);                //提示信息
-    textLayout->addWidget(textEdit);                //编辑框
-    mainLayout->addLayout(textLayout);
-    btnLayout = new QHBoxLayout;
-    btnLayout->addWidget(combox);                  //菜单栏
-    btnLayout->addWidget(functionBtn);             //功能按钮
-    mainLayout->addLayout(btnLayout);
-    //resize(180,200);
-    setLayout(mainLayout);
-}
-void SubWindow::generateCut(){generateOpen();}
-
-void SubWindow::generateDraw(){
-    widthLabel =new QLabel(tr("线宽"));
-    widthLabel->setFrameStyle(QFrame::Panel|QFrame::Raised);
-    widthLabel->setFixedSize(40,25);
-    widthSpinBox =new QSpinBox;
-    widthSpinBox->setFixedHeight(30);
-    widthSpinBox->setRange(3,8);
-    widthSpinBox->setValue(5);
-
-    lineWidth = new QHBoxLayout;
-    lineWidth->addWidget(widthLabel);
-    lineWidth->addWidget(widthSpinBox);
-    drawdigit = new DrawDigit;
-    drawdigit->setFixedSize(140,180);
-    connect(widthSpinBox,SIGNAL(valueChanged(int)),drawdigit,SLOT(setWidth(int)));
-    generateTextCnt();
-
-    mainLayout = new QVBoxLayout;
-    mainLayout->addLayout(lineWidth);
-    mainLayout->addWidget(drawdigit,0,Qt::AlignCenter);
-    mainLayout->setSpacing(5);
-
-    textLayout = new QHBoxLayout;
-    textLayout->addWidget(userText);                //提示信息
-    textLayout->addWidget(textEdit);                //编辑框
-    mainLayout->addLayout(textLayout);
-    btnLayout = new QHBoxLayout;
-    btnLayout->addWidget(combox);                  //菜单栏
-    btnLayout->addWidget(functionBtn);             //功能按钮
-    mainLayout->addLayout(btnLayout);
-    setLayout(mainLayout);
+    delete_s(msgBox);*/
 }
 
-void SubWindow::generateView()
-{
-    size = new QLabel(tr("Dimensions：*** x ***"));
-    zoom = 50.0;
-    //info = NULL;
-    spinbox = new QSpinBox;
-    spinbox->setRange(1,99);
-    spinbox->setValue(zoom);
-    spinbox->setFixedWidth(40);
-    slider = new QSlider;                   //用于缩放的滚动条
-    slider->setOrientation(Qt::Horizontal);
-    slider->setRange(1,99);
-    slider->setTickInterval(10);
-    slider->setSizePolicy(QSizePolicy::Preferred,QSizePolicy::Fixed);
-    slider->setValue(zoom);
-    //关联信号到槽，将spinbox - slider - zoomInOut 关联起来
-    connect(spinbox,SIGNAL(valueChanged(int)),slider,SLOT(setValue(int)));
-    connect(slider,SIGNAL(valueChanged(int)),spinbox,SLOT(setValue(int)));
-    connect(slider,SIGNAL(valueChanged(int)),this,SLOT(zoomInOut(int)));
-
-    zoomin = new QPushButton;
-    zoomin->setIcon(QPixmap(rsrcPath + "/zoomin.png"));
-    zoomin->setFixedSize(QPixmap(rsrcPath + "/zoomin.png").size());
-    zoomin->setStatusTip(tr("放大"));
-    connect(zoomin,SIGNAL(clicked()),this,SLOT(zoomIn()));
-    zoomout = new QPushButton;
-    zoomout->setIcon(QPixmap(rsrcPath + "/zoomout.png"));
-    //zoomout->setIconSize(QPixmap(rsrcPath + "/zoomout.png").size());
-    zoomout->setFixedSize(QPixmap(rsrcPath + "/zoomout.png").size());
-    zoomout->setStatusTip(tr("缩小"));
-    connect(zoomout,SIGNAL(clicked()),this,SLOT(zoomOut()));
-    scene = new QGraphicsScene(this);
-    scene->setBackgroundBrush(QColor::fromRgb(224,224,224)); //填充背景
-    view = new QGraphicsView;
-    view->setScene(scene);
-    view->setMinimumSize(160,65);
-    view->resize(200,120);
-    view->setCacheMode(QGraphicsView::CacheBackground);
-    //view->show();
-}
-
-void SubWindow::generateTextCnt()
-{
-    userText = new QLabel(tr("编辑栏"));
-    userText->setFrameStyle(QFrame::Panel|QFrame::Raised);
-    userText->setFixedHeight(25);
-    userText->resize(160,25);
-    textEdit = new QTextEdit;
-    textEdit->setFixedHeight(30);
-    textEdit->document()->setMaximumBlockCount(1); //设置最大行数为1行
-    textEdit->setAlignment(Qt::AlignCenter);
-    QFont font(QString::fromLocal8Bit("Arial"),14);
-    textEdit->setFont(font);
-
-    combox = new QComboBox;
-    combox->addItem(QIcon(rsrcPath + "/recognize.png"),tr("揭晓")); //0 识别
-    if(currentWinType == New) {
-        combox->addItem(QIcon(rsrcPath + "/check.png"),tr("校对")); //1
-        combox->addItem(QIcon(rsrcPath + "/generate.png"),tr("更新"));//2
-        combox->addItem(QIcon(rsrcPath + "/tooth.png"),tr("处理"));//3
-    }
-    else{
-        combox->addItem(QIcon(rsrcPath + "/cycle.png"),tr("还原"));//1
-        switch(currentWinType){
-            case Open : combox->addItem(QIcon(rsrcPath + "/openimage.png"),tr("替换")); break;//2
-            case Cut  : combox->addItem(QIcon(rsrcPath + "/screencut.png"),tr("替换")); break;//2
-            case Draw : combox->addItem(QIcon(rsrcPath + "/delete.png"),tr("清除")); //2
-                        combox->addItem(QIcon(rsrcPath + "/sobel.png"),tr("训练")); break;//3
-            default: break;
-        }
-    }
-    combox->setFixedHeight(30);
-    //connect(comboBox,SIGNAL(activated(int)),this,SLOT(textEdit->clear()));  //关联相应的槽函数
-    functionBtn = new QPushButton(tr("OK"));
-    functionBtn->setFixedHeight(30);
-    connect(functionBtn,SIGNAL(clicked()),this,SLOT(tool()));
-}
 void SubWindow::newFile()
 {
+    newView* view = nullptr;
+    try{
+        view = dynamic_cast<newView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
+
     toSaveIt = false;
     //新建验证码的默认命名验证码的字符值一致
-    curPath = codeArea->getCode();
+    curPath = view->codeArea->getCode();
     setWindowTitle(curPath);
     //编辑框的内容被更改时发送contentsChange()信号来执行isModified()函数
-    connect(this->textEdit->document(),SIGNAL(contentsChanged()),this,SLOT(isModified()));
+    connect(subView->textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(isModified()));
 }
 
 void SubWindow::cutFile()
@@ -215,7 +105,7 @@ void SubWindow::cutFile()
     setWindowTitle(curPath + "[*]");
     setWindowModified(true);
     //若编辑框的内容被更改时发送contentsChange()信号来执行isModified()函数
-    connect(this->textEdit->document(),SIGNAL(contentsChanged()),this,SLOT(isModified()));
+    connect(subView->textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(isModified()));
 }
 
 void SubWindow::drawFile(){
@@ -228,7 +118,7 @@ void SubWindow::drawFile(){
     setWindowTitle(curPath + "[*]");
     setWindowModified(true);
     //若编辑框的内容被更改时发送contentsChange()信号来执行isModified()函数
-    connect(this->textEdit->document(),SIGNAL(contentsChanged()),this,SLOT(isModified()));
+    connect(subView->textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(isModified()));
 }
 
 bool SubWindow::loadFile(const QString &fileName)
@@ -247,16 +137,22 @@ bool SubWindow::loadFile(const QString &fileName)
         //info = new QFileInfo(fileName);
         pixmap.load(fileName);
 
-        pixmapItem = scene->addPixmap(pixmap);                      //显示导入的验证码
-        scene->setSceneRect(QRectF(pixmap.rect()));                 //设置显示大小
+        openView* view = nullptr;
+        try{
+            view = dynamic_cast<openView *>(subView);
+        }catch (std::bad_cast& bc){
+            qDebug() << "bad_cast caught: " << bc.what();
+        }
+        pixmapItem = view->scene->addPixmap(pixmap);                      //显示导入的验证码
+        view->scene->setSceneRect(QRectF(pixmap.rect()));                 //设置显示大小
 
         //qDebug() << "depth:" << pixmap.depth();
         //qDebug() << "hasAlpha:" << pixmap.hasAlpha();
         setCurrentFile(fileName);
-        size->setText("Dimensions:" + QString::number(pixmapItem->pixmap().width())
+        view->size->setText("Dimensions:" + QString::number(pixmapItem->pixmap().width())
                       + " x " + QString::number(pixmapItem->pixmap().height()));
         //若编辑框的内容被更改时发送contentsChange()信号来执行isModified()函数
-        connect(this->textEdit->document(), SIGNAL(contentsChanged()),this, SLOT(isModified()));
+        connect(subView->textEdit->document(), SIGNAL(contentsChanged()),this, SLOT(isModified()));
         return true;
     }
     return false;
@@ -265,14 +161,14 @@ bool SubWindow::loadFile(const QString &fileName)
 void SubWindow::isModified()
 {
     //编辑器是否被更改修改窗口状态setWindowModified()改为更新主窗口更新字体菜单
-    if(this->textEdit->document()->isModified())
+    if(subView->textEdit->document()->isModified())
     {
         textUpdate();       //发送更新主窗体字体菜单状态栏的信号
     }
 }
 
 bool SubWindow::readPath(QString& fullPath){
-    QString strText = this->textEdit->toPlainText();
+    QString strText = subView->textEdit->toPlainText();
     QTextStream ts(&strText);
     fullPath = ts.readLine();
     QDir dir(fullPath);
@@ -285,7 +181,7 @@ bool SubWindow::readPath(QString& fullPath){
 void SubWindow::genLabels(){
 
     QFont srcfont(QString::fromLocal8Bit("Arial"),10); //路径很长，调整字体
-    textEdit->setFont(srcfont);
+    subView->textEdit->setFont(srcfont);
 
     QString path;
     bool success = readPath(path);
@@ -313,8 +209,8 @@ void SubWindow::genLabels(){
             }
         }
         QFont dstfont(QString::fromLocal8Bit("Arial"),14); //还原字体
-        textEdit->setFont(dstfont);
-        textEdit->clear();
+        subView->textEdit->setFont(dstfont);
+        subView->textEdit->clear();
     }
 
     msgBox->exec();
@@ -336,30 +232,43 @@ void SubWindow::showResult(){
     }
     qDebug() << show;
 
-    this->textEdit->clear();
-    textEdit->setText(show);
-    textEdit->setAlignment(Qt::AlignCenter);
+    subView->textEdit->clear();
+    subView->textEdit->setText(show);
+    subView->textEdit->setAlignment(Qt::AlignCenter);
 }
 
 void SubWindow::replaceCode()
 {
-    if(currentWinType == New)
-        codeArea->replaceCodePic(); //更新验证码
+    if(currentWinType == New){
+        newView* view = nullptr;
+        try{
+            view = dynamic_cast<newView *>(subView);
+        }catch (std::bad_cast& bc){
+            qDebug() << "bad_cast caught: " << bc.what();
+        }
+        view->codeArea->replaceCodePic(); //更新验证码
+    }
 }
 //将结果送到编辑框，自定义生成的
 void SubWindow::recognizeCode()
 {
     if(currentWinType == New){
-        this->textEdit->clear();
-        textEdit->setText(codeArea->getCode());
-        textEdit->setAlignment(Qt::AlignCenter);
+        newView* view = nullptr;
+        try{
+            view = dynamic_cast<newView *>(subView);
+        }catch (std::bad_cast& bc){
+            qDebug() << "bad_cast caught: " << bc.what();
+        }
+        subView->textEdit->clear();
+        subView->textEdit->setText(view->codeArea->getCode());
+        subView->textEdit->setAlignment(Qt::AlignCenter);
     }
 }
 
 //将识别结果送到编辑框，用dnn获得的
 void SubWindow::recognizePic()
 {
-    this->textEdit->clear();
+    subView->textEdit->clear();
     winType type = getCurrentWinType();
     if(type == Cut && toSaveIt == true)
     {
@@ -372,29 +281,41 @@ void SubWindow::recognizePic()
     qDebug() << picture.c_str();
     std::string result /*= recognition(picture)*/;
     if(result.size()<4 || result.size()>5)
-        textEdit->setText(QString("Unexpected."));
+        subView->textEdit->setText(QString("Unexpected."));
     else
-        textEdit->setText(QString(result.c_str()));
-    textEdit->setAlignment(Qt::AlignCenter);
+        subView->textEdit->setText(QString(result.c_str()));
+    subView->textEdit->setAlignment(Qt::AlignCenter);
 }
 
 //设置验证码
 void SubWindow::setCode()
 {
-    QString strText = this->textEdit->toPlainText();
+    QString strText = subView->textEdit->toPlainText();
     QTextStream ts(&strText);
     /*while( ! ts.atEnd())
     {
         qDebug()<<ts.readLine();
     }*/
     QString code = ts.readLine();
-    codeArea->setCode(code);
+    newView* view = nullptr;
+    try{
+        view = dynamic_cast<newView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
+    view->codeArea->setCode(code);
     newFile();
 }
 //认证检验
 void SubWindow::checkCode()
 {
-    QString strText = this->textEdit->toPlainText();
+    newView* view = nullptr;
+    try{
+        view = dynamic_cast<newView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
+    QString strText = subView->textEdit->toPlainText();
     QTextStream ts(&strText);
     QString user = ts.readLine();
     QString code = "";
@@ -406,7 +327,7 @@ void SubWindow::checkCode()
     }
     if(code.size() == Constant::DEF_CODECOUNT)
     {
-        if (codeArea->checkCode(user))
+        if (view->codeArea->checkCode(user))
         {
            msgBox = new QMessageBox(QMessageBox::Information, QStringLiteral("Tips"),
                                     QStringLiteral("Success."),QMessageBox::Ok, this);
@@ -425,42 +346,67 @@ void SubWindow::checkCode()
           msgBox->setIconPixmap(QPixmap(rsrcPath + "/again.png"));
     }
     msgBox->exec();
+    delete_s(msgBox);
 }
 //图片缩放
 void SubWindow::zoomInOut(int value)   	//缩放
 {
+    openView* view = nullptr;
+    try{
+        view = dynamic_cast<openView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
     qreal s = 1.0;
-    if(value>zoom)                 		//放大
+    if(value > view->zoom)                 		//放大
     {
-        s=pow(1.02,(value-zoom));
+        s=pow(1.02,(value - view->zoom));
     }
     else                             	//缩小
     {
-        s=pow(1/1.02,(zoom-value));
+        s=pow(1/1.02,(view->zoom - value));
     }
-    view->scale(s,s);
-    zoom = value;
+    view->gview->scale(s,s);
+    view->zoom = value;
 }
 void SubWindow::zoomIn()   	//缩放
 {
-    qreal s = slider->value();
+    openView* view = nullptr;
+    try{
+        view = dynamic_cast<openView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
+    qreal s = view->slider->value();
     if(s < 99.0) s += 1.0;
     else s = 99.0;
-    slider->setValue(s);
+    view->slider->setValue(s);
 }
 
 void SubWindow::zoomOut()   	//缩放
 {
-    qreal s = slider->value();
+    openView* view = nullptr;
+    try{
+        view = dynamic_cast<openView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
+    qreal s = view->slider->value();
     if(s > 1.0) s -= 1.0;
     else s = 1.0;
-    slider->setValue(s);
+    view->slider->setValue(s);
 }
 //还原
 void SubWindow::resetZoom()   	//缩放
 {
+    openView* view = nullptr;
+    try{
+        view = dynamic_cast<openView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
     qreal s = 1.0;
-    qreal v = slider->value();
+    qreal v = view->slider->value();
     if(v > 50.0)                 		//已放大
     {
         s=pow(1/1.02,(v-50.0));
@@ -469,15 +415,15 @@ void SubWindow::resetZoom()   	//缩放
     {
         s=pow(1.02,(50.0-v));
     }
-    view->scale(s,s);
-    zoom = 50.0;
-    slider->setValue(zoom);
+    view->gview->scale(s,s);
+    view->zoom = 50.0;
+    view->slider->setValue(view->zoom);
 }
 
 void SubWindow::tool()
 {
     winType type = getCurrentWinType();
-    int index = combox->currentIndex();
+    int index = subView->combox->currentIndex();
     switch(index)
     {
         case 0: {
@@ -493,18 +439,32 @@ void SubWindow::tool()
                     switch(type){
                         case New: checkCode(); break;//用户校对验证码的结果
                         case Open: case Cut: restoreImage(); break; //恢复图像
-                        case Draw: drawdigit->restorePic(); break;  //还原到上次清除的图像
-                        default:;
-                    }
+                        case Draw: {
+                            drawView* view = nullptr;
+                            try{
+                                view = dynamic_cast<drawView *>(subView);
+                            }catch (std::bad_cast& bc){
+                                qDebug() << "bad_cast caught: " << bc.what();
+                            }
+                            view->drawdigit->restorePic(); break;  }//还原到上次清除的图像
+                            default:;
+                        }
                     break;
                 }
         case 2: {
                     switch(type){
                         case New: setCode(); break; //读取编辑框的信息并生成对应验证码
                         case Open: case Cut: changeWindows(); break; //导入图片更换窗口
-                        case Draw: drawdigit->clearPic(); break;//清除
-                        default:;
-                    }
+                        case Draw: {
+                                drawView* view = nullptr;
+                                try{
+                                    view = dynamic_cast<drawView *>(subView);
+                                }catch (std::bad_cast& bc){
+                                    qDebug() << "bad_cast caught: " << bc.what();
+                                }
+                                view->drawdigit->clearPic(); break;  }//清除
+                                default:;
+                            };
                     break;
                 }
         case 3: {
@@ -623,9 +583,25 @@ bool SubWindow::saveFile(QString fileName)
         //保存图片到新路径上
         winType type = getCurrentWinType();
         switch(type){
-            case New: success = codeArea->saveCode(fileName); break;
+            case New: {
+                    newView* view = nullptr;
+                    try{
+                        view = dynamic_cast<newView *>(subView);
+                    }catch (std::bad_cast& bc){
+                        qDebug() << "bad_cast caught: " << bc.what();
+                    }
+                success = view->codeArea->saveCode(fileName); break;
+            }
             case Open: case Cut: success = pixmapItem->pixmap().save(fileName); break;
-            case Draw: success = drawdigit->savePic(fileName); break;
+            case Draw: {
+                    drawView* view = nullptr;
+                    try{
+                        view = dynamic_cast<drawView *>(subView);
+                    }catch (std::bad_cast& bc){
+                        qDebug() << "bad_cast caught: " << bc.what();
+                    }
+                    success = view->drawdigit->savePic(fileName); break;
+            }
             default : qDebug() << "Unknown Windows Type.";
         }
         if (success)
@@ -647,37 +623,24 @@ bool SubWindow::saveFile(QString fileName)
 
 bool SubWindow::showFile(QPixmap pix)
 {
+    openView* view = nullptr;
+    try{
+        view = dynamic_cast<openView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
     if(!pix.isNull()){
         pixmap = pix;
-        pixmapItem = scene->addPixmap(pixmap);                      //显示导入的验证码
-        scene->setSceneRect(QRectF(pixmap.rect()));                  //设置显示大小
+        pixmapItem = view->scene->addPixmap(pixmap);                      //显示导入的验证码
+        view->scene->setSceneRect(QRectF(pixmap.rect()));                  //设置显示大小
         qDebug() << "depth:" << pixmap.depth();
         qDebug() << "hasAlpha:" << pixmap.hasAlpha();
-        size->setText("Dimensions:" + QString::number(pixmapItem->pixmap().width())
+        view->size->setText("Dimensions:" + QString::number(pixmapItem->pixmap().width())
                       + " x " + QString::number(pixmapItem->pixmap().height()));
 
         //connect(this->textEdit->document(), SIGNAL(contentsChanged()),this, SLOT(isModified()));
-        connect(slider,SIGNAL(valueChanged(int)),this,SLOT(zoomInOut(int)));
+        connect(view->slider,SIGNAL(valueChanged(int)),this,SLOT(zoomInOut(int)));
         return true;
     }
     else return false;
 }
-
-/*
-QPointF SubWindow::mapToMap(QPointF p)
-{
-    QPointF location;
-    qreal ws =sceneRect().width();
-    qreal hs =sceneRect().height();
-
-    qreal wp =pixmapItem->pixmap().width();
-    qreal hp =pixmapItem->pixmap().height();
-
-    qreal y =hp-(hs/2+p.y())*hp/hs;
-    qreal x =(ws/2+p.x())*wp/ws;
-
-    location.setX(x);
-    location.setY(y);
-
-    return location;
-}*/

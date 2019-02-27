@@ -1,6 +1,6 @@
 #include "dialog.h"
-#include "mainwindow.h"
-#include "subwindow.h"
+#include "windows/mainwindow.h"
+#include "windows/subwindow.h"
 #include "recentopened/recentopened.h"
 void MainWindow::CutImage()
 {

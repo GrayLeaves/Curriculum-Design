@@ -1,5 +1,5 @@
 #include "dialog.h"
-#include "mainwindow.h"
+#include "windows/mainwindow.h"
 #include <QGuiApplication>
 #include <QDesktopWidget>
 #include <QMouseEvent>

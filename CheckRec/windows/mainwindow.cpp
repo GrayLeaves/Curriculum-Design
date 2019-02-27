@@ -78,14 +78,14 @@ void MainWindow::updateMenus()
 
     //更新对应的字体大小工具栏的值，实现请参考fontChanged()
     if(hasSubWindow){
-        QFont font = activeSubWindow()->getTextEdit()->currentFont();
+        QFont font = activeSubWindow()->subView->textEdit->currentFont();
         comboFont->setCurrentFont(font);
         QString sizenum = QString::number(font.pointSize());
         comboSize->setCurrentIndex(comboSize->findText(sizenum));//下标和字号不完全对应下的转换
     }
 
     //子窗口打开着并且其中有内容被选中的情况
-    bool hasSelection = (hasSubWindow && activeSubWindow()->getTextEdit()->textCursor().hasSelection());
+    bool hasSelection = (hasSubWindow && activeSubWindow()->subView->textEdit->textCursor().hasSelection());
     cutAct->setEnabled(hasSelection);
     copyAct->setEnabled(hasSelection);
     setEnabledText(hasSelection);
@@ -131,11 +131,11 @@ void MainWindow::updateWindowMenu()
 
 SubWindow *MainWindow::createSubWindow(winType type)
 {
-    SubWindow *subwindow = new SubWindow(type);           //创建子窗口部件
+    SubWindow *subwindow = new SubWindow(type);     //创建子窗口部件
     mdiArea->addSubWindow(subwindow);               //多文档区域添加子窗口，作为中心部件
     //根据QTextEdit类鉴别复制、剪切和复制是否可用
-    connect(subwindow->getTextEdit(), SIGNAL(copyAvailable(bool)),cutAct, SLOT(setEnabled(bool)));
-    connect(subwindow->getTextEdit(), SIGNAL(copyAvailable(bool)),copyAct, SLOT(setEnabled(bool)));
+    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),cutAct, SLOT(setEnabled(bool)));
+    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),copyAct, SLOT(setEnabled(bool)));
     return subwindow;
 }
 
@@ -565,7 +565,7 @@ QMdiSubWindow *MainWindow::findSubWindow(const QString &fileName)
         if (subwindow->currentPath() == canonicalFilePath)
             return window;
     }
-    return 0;
+    return nullptr;
 }
 
 void MainWindow::setActiveSubWindow(QWidget *window)
