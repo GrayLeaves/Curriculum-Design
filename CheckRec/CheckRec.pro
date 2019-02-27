@@ -30,7 +30,7 @@ INCLUDEPATH += D:/opencv/build/include \
                D:/opencv/build/include/opencv2
 #LIBS += $$PWD/bin/libopencv_*.dll \			   
 LIBS += D:/Qt/OpenCV_Build/install/x86/mingw/bin/libopencv_*.dll \
-        $$PWD/recognition/classification_dll.lib
+        # $$PWD/recognition/classification_dll.lib
 
 SOURCES += main.cpp\
         mainwindow.cpp \
@@ -52,13 +52,9 @@ HEADERS  += mainwindow.h \
     proc.h \
     recentopened/recentopened.h \
     common.h \
-    recognition/classification.h \
-    recognition/recognition.h \
     histogram/histogram.h \
     ui_mainwindow.h \
     drawdigit/drawdigit.h \
-    recognition/support_common.h \
-    recognition/classification_c.h
 	
 #qt designer -- no use
 FORMS    += mainwindow.ui

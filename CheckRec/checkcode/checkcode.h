@@ -9,10 +9,12 @@
 #include <QPixmap>
 //#include <random> //提供随机数引擎
 
-#define DEF_CODECOUNT 5					//默认字符个数
-#define DEF_NOISYLINECOUNT 2			// 噪点线数量
-#define DEF_CONVERSEROTATE 10			// 转换角度范围度数
-#define DEF_CONVERSESCALE 15			// 转换大小范围百分比
+namespace Constant{
+    const int DEF_CODECOUNT = 5;		        //默认字符个数
+    const int DEF_NOISYLINECOUNT = 2;			// 噪点线数量
+    const int DEF_CONVERSEROTATE = 10;			// 转换角度范围度数
+    const int DEF_CONVERSESCALE = 15;			// 转换大小范围百分比
+}
 
 class CodeArea : public QWidget
 {
@@ -30,7 +32,7 @@ public:
     void setCode(QString code);
     QString getCode();                              // 获取验证码
     bool saveCode(QString& fileName);               // 保存验证码
-    //QImage getImage() {return img;}                 // 获得验证码整幅图片
+    //QImage getImage() {return img;}               // 获得验证码整幅图片
 protected:
     void paintEvent(QPaintEvent *event);
 
@@ -52,15 +54,15 @@ private:
     QStringList codeRange;					// 验证码生成范围
     QStringList loginCode;					// 验证码列表,用于生成验证码图片
     QPainterPath *perCodePic;				// 单个字符的验证码图片
-    QList<QPointF> knots[DEF_NOISYLINECOUNT];// 连续的点
+    QList<QPointF> knots[Constant::DEF_NOISYLINECOUNT];// 连续的点
     QList<QPainterPath *> codePic;			// 验证码图片
     QList<Qt::GlobalColor> codeColor;		// 验证码可用颜色列表
     bool activeConversed;                   // 是否激活重新绘制
     QVector<int> converse = {0,0,0};
-    int noisyLineCount = DEF_NOISYLINECOUNT;
-    int converseRotate = DEF_CONVERSEROTATE;
-    int converseScale = DEF_CONVERSESCALE;
-    int codeCount = DEF_CODECOUNT;
+    int noisyLineCount = Constant::DEF_NOISYLINECOUNT;
+    int converseRotate = Constant::DEF_CONVERSEROTATE;
+    int converseScale = Constant::DEF_CONVERSESCALE;
+    int codeCount = Constant::DEF_CODECOUNT;
     //std::random_device rd; //随机数引擎，效果还不太好
 };
 #endif // CHECKCODE_H

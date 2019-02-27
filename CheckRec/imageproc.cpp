@@ -88,11 +88,6 @@ void MainWindow::sobel()
 {
     imageProcTriggered(proc::SobelEdge,tr("sobel"));
 }
-//PrewittEdge
-void MainWindow::prewitt()
-{
-    imageProcTriggered(proc::PrewittEdge,tr("prewitt"));
-}
 
 void MainWindow::NewImage()
 {
@@ -235,32 +230,96 @@ void MainWindow::drawHistogram()                   //绘制直方图
         }
     }
 }
+cv::Mat proc::QImageToMat(QImage image)
+{
+    cv::Mat mat;
+    switch (image.format())
+    {
+        case QImage::Format_ARGB32:
+        case QImage::Format_RGB32:
+        case QImage::Format_ARGB32_Premultiplied:
+            mat = cv::Mat(image.height(), image.width(), CV_8UC4,
+                          (void*)image.constBits(), image.bytesPerLine());
+            break;
+        case QImage::Format_RGB888:
+            mat = cv::Mat(image.height(), image.width(), CV_8UC3,
+                          (void*)image.constBits(), image.bytesPerLine());
+            cv::cvtColor(mat, mat, CV_BGR2RGB);
+            break;
+        case QImage::Format_Indexed8:
+            mat = cv::Mat(image.height(), image.width(), CV_8UC1,
+                          (void*)image.constBits(), image.bytesPerLine());
+            break;
+        default: ;
+     }
+    return mat;
+}
+
+QImage proc::MatToQImage(const cv::Mat& mat)
+{
+    // 8-bits unsigned, NO. OF CHANNELS = 1
+    if(mat.type() == CV_8UC1)
+    {
+        QImage image(mat.cols, mat.rows, QImage::Format_Indexed8);
+        // Set the color table (used to translate colour indexes to qRgb values)
+        image.setColorCount(256);
+        for(int i = 0; i < 256; i++)
+        {
+            image.setColor(i, qRgb(i, i, i));
+        }
+        // Copy input Mat
+        uchar *pSrc = mat.data;
+        for(int row = 0; row < mat.rows; row ++)
+        {
+            uchar *pDest = image.scanLine(row);
+            memcpy(pDest, pSrc, mat.cols);
+            pSrc += mat.step;
+        }
+        return image;
+    }
+    // 8-bits unsigned, NO. OF CHANNELS = 3
+    else if(mat.type() == CV_8UC3)
+    {
+        // Copy input Mat
+        const uchar *pSrc = (const uchar*)mat.data;
+        // Create QImage with same dimensions as input Mat
+        QImage image(pSrc, mat.cols, mat.rows, mat.step, QImage::Format_RGB888);
+        return image.rgbSwapped();
+    }
+    else if(mat.type() == CV_8UC4)
+    {
+        // qDebug() << "CV_8UC4";
+        // Copy input Mat
+        const uchar *pSrc = (const uchar*)mat.data;
+        // Create QImage with same dimensions as input Mat
+        QImage image(pSrc, mat.cols, mat.rows, mat.step, QImage::Format_ARGB32);
+        return image.copy();
+    }
+    else
+    {
+        qDebug() << "ERROR: Mat could not be converted to QImage.";
+        return QImage();
+    }
+}
 //binaryzation 二值化
 QImage proc::Binaryzation(const QImage &origin)
 {
-    int width = origin.width();
-    int height = origin.height();
-    int gray, newGray;
-    QImage newImg = QImage(width, height, QImage::Format_RGB888);
-    for (int x=0; x<width; x++) {
-        for(int y=0; y<height; y++) {
-            gray = qGray(origin.pixel(x,y));
-            if (gray > 128)
-                newGray = 255;
-            else
-                newGray = 0;
-            newImg.setPixel(x,y,qRgb(newGray, newGray, newGray));
-        }
-    }
-    return newImg;
+    cv::Mat mat = QImageToMat(origin);
+    cv::Mat res;
+    cv::threshold(mat, res, 125, 200.0, cv::THRESH_BINARY);
+    return MatToQImage(res);
 }
 //invert 反色相
 QImage proc::Invert(const QImage &origin)
 {
+    /*cv::Mat mat = QImageToMat(origin);
+    cv::bitwise_not(mat, mat);
+    return MatToQImage(mat);*/
+
     int width = origin.width();
     int height = origin.height();
     int gray, newGray;
-    QImage newImg = QImage(width, height, QImage::Format_RGB888);
+    QImage newImg = QImage(width, height, QImage::Format_RGB32);
     for (int x=0; x<width; x++) {
         for(int y=0; y<height; y++) {
             gray = qGray(origin.pixel(x,y));
@@ -273,139 +332,38 @@ QImage proc::Invert(const QImage &origin)
 //GreyScale 灰度化
 QImage proc::GreyScale(const QImage &origin)
 {
-    QImage *newImage = new QImage(origin.width(), origin.height(),
-                                   QImage::Format_ARGB32);
-    QColor oldColor;
-    int average;
-    for (int x=0; x<newImage->width(); x++) {
-        for (int y=0; y<newImage->height(); y++) {
-            oldColor = QColor(origin.pixel(x,y));
-            average = (oldColor.red()*299 + oldColor.green()*587 + oldColor.blue()*114 + 500)/1000;
-            newImage->setPixel(x,y,static_cast<int>(qRgb(average,average,average)));
-        }
-    }
-    return *newImage;
+    cv::Mat mat = QImageToMat(origin);
+    cv::cvtColor(mat, mat, CV_BGR2GRAY);
+    return MatToQImage(mat);
 }
 //laplace 拉普拉斯锐化
 QImage proc::LaplaceSharpen(const QImage &origin)
 {
-    int width = origin.width();
-    int height = origin.height();
-    QImage newImage = QImage(width, height,QImage::Format_RGB888);
-    int window[3][3] = {0,-1,0,-1,4,-1,0,-1,0};
-    int sumR, sumG, sumB, old_r, old_g, old_b;
-
-    for (int x=1; x<width; x++) {
-        for(int y=1; y<height; y++) {
-            sumR = 0; sumG = 0; sumB = 0;
-            //对每一个像素使用模板
-            for(int m=x-1; m<=x+1; m++) {
-                for(int n=y-1; n<=y+1; n++) {
-                    if(m>=0 && m<width && n<height) {
-                        sumR += QColor(origin.pixel(m,n)).red()*window[n-y+1][m-x+1];
-                        sumG += QColor(origin.pixel(m,n)).green()*window[n-y+1][m-x+1];
-                        sumB += QColor(origin.pixel(m,n)).blue()*window[n-y+1][m-x+1];
-                    }
-                }
-            }
-            old_r = QColor(origin.pixel(x,y)).red();
-            sumR += old_r;
-            sumR = qBound(0, sumR, 255);
-            old_g = QColor(origin.pixel(x,y)).green();
-            sumG += old_g;
-            sumG = qBound(0, sumG, 255);
-            old_b = QColor(origin.pixel(x,y)).blue();
-            sumB += old_b;
-            sumB = qBound(0, sumB, 255);
-            newImage.setPixel(x,y, qRgb(sumR, sumG, sumB));
-        }
-    }
-
-    return newImage;
+    cv::Mat mat = QImageToMat(origin);
+    // Remove noise by blurring with a Gaussian filter ( kernel size = 3 )
+    cv::GaussianBlur(mat, mat, cv::Size(3, 3), 0, 0, BORDER_DEFAULT);
+    cv::cvtColor(mat, mat, COLOR_BGR2GRAY);
+    int ddepth = CV_16S, kernel_size = 3, scale = 1, delta = 0;
+    cv::Mat dst, abs_dst;
+    cv::Laplacian( mat, dst, ddepth, kernel_size, scale, delta, BORDER_DEFAULT );
+    // converting back to CV_8U
+    cv::convertScaleAbs( dst, abs_dst );
+    return MatToQImage(abs_dst);
 }
 //Sobel Edge Detector
 QImage proc::SobelEdge(const QImage &origin)
 {
-    /* Sobel */
-    double Gx[9] = { 1.0, 0.0,-1.0, 2.0,0.0,-2.0, 1.0,0.0,-1.0};
-    double Gy[9] = {-1.0,-2.0,-1.0, 0.0,0.0,0.0, 1.0,2.0,1.0};
-
-    QRgb pixel;
-    QImage grayImage = GreyScale(origin);
-    int height = grayImage.height();
-    int width = grayImage.width();
-    QImage newImage = QImage(width, height,QImage::Format_RGB888);
-
-    float sobel_norm[width*height];
-    float max = 0.0;
-    QColor my_color;
-    double value_gx, value_gy;
-
-    for (int x=0; x < width; x++) {
-        for( int y=0; y < height; y++) {
-            value_gx = 0.0;
-            value_gy = 0.0;
-            for (int k=0; k<3;k++) {
-                for(int p=0; p<3; p++) {
-                    pixel=grayImage.pixel(x+1+1-k,y+1+1-p);
-                    value_gx += Gx[p*3+k] * qRed(pixel);
-                    value_gy += Gy[p*3+k] * qRed(pixel);
-                }
-//                sobel_norm[x+y*width] = sqrt(value_gx*value_gx + value_gy*value_gy)/1.0;
-                sobel_norm[x+y*width] = abs(value_gx) + abs(value_gy);
-                max=sobel_norm[x+y*width]>max ? sobel_norm[x+y*width] : max;
-            }
-        }
-    }
-
-    for(int i=0;i<width;i++) {
-        for(int j=0;j<height;j++) {
-            my_color.setHsv( 0 ,0, 255-int(255.0*sobel_norm[i + j * width]/max));
-            newImage.setPixel(i,j,my_color.rgb());
-        }
-    }
-    return newImage;
-}
-//Prewitt Edge Detector
-QImage proc::PrewittEdge(const QImage &origin)
-{
-    /* Sobel */
-    double Gx[9] = {-1.0,0.0,1.0, -1.0,0.0,1.0, -1.0,0.0,1.0};
-    double Gy[9] = { 1.0,1.0,1.0, 0.0,0.0,0.0, -1.0,-1.0,-1.0};
-
-    QRgb pixel;
-    QImage grayImage = GreyScale(origin);
-    int height = grayImage.height();
-    int width = grayImage.width();
-    QImage newImage = QImage(width, height,QImage::Format_RGB888);
-
-    float sobel_norm[width*height];
-    float max = 0.0;
-    QColor my_color;
-    double value_gx, value_gy;
-
-    for (int x=0; x<width; x++) {
-        for( int y=0; y<height; y++) {
-            value_gx = 0.0;
-            value_gy = 0.0;
-            for (int k=0; k<3;k++) {
-                for(int p=0; p<3; p++) {
-                    pixel=grayImage.pixel(x+1+1-k,y+1+1-p);
-                    value_gx += Gx[p*3+k] * qRed(pixel);
-                    value_gy += Gy[p*3+k] * qRed(pixel);
-                }
-//                sobel_norm[x+y*width] = sqrt(value_gx*value_gx + value_gy*value_gy)/1.0;
-                sobel_norm[x+y*width] = abs(value_gx) + abs(value_gy);
-                max=sobel_norm[x+y*width]>max ? sobel_norm[x+y*width] : max;
-            }
-        }
-    }
-
-    for(int i=0;i<width;i++) {
-        for(int j=0;j<height;j++){
-            my_color.setHsv( 0 ,0, 255-int(255.0*sobel_norm[i + j * width]/max));
-            newImage.setPixel(i,j,my_color.rgb());
-        }
-    }
-    return newImage;
+    int ddepth = CV_16S, ksize = 3, scale = 1, delta = 0;
+    cv::Mat mat = QImageToMat(origin);
+    // Remove noise by blurring with a Gaussian filter ( kernel size = 3 )
+    cv::GaussianBlur(mat, mat, cv::Size(3, 3), 0, 0, BORDER_DEFAULT);
+    cv::cvtColor(mat, mat, COLOR_BGR2GRAY);
+    cv::Mat grad, grad_x, grad_y, abs_grad_x, abs_grad_y;
+    cv::Sobel(mat, grad_x, ddepth, 1, 0, ksize, scale, delta, BORDER_DEFAULT);
+    cv::Sobel(mat, grad_y, ddepth, 0, 1, ksize, scale, delta, BORDER_DEFAULT);
+    // converting back to CV_8U
+    convertScaleAbs(grad_x, abs_grad_x);
+    convertScaleAbs(grad_y, abs_grad_y);
+    addWeighted(abs_grad_x, 0.5, abs_grad_y, 0.5, 0, grad);
+    return MatToQImage(grad);
 }

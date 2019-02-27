@@ -33,7 +33,7 @@
 #include <QPushButton>
 
 #include "checkcode/checkcode.h"  //生成验证码
-#include "drawdigit/drawdigit.h"            //绘制手写体
+#include "drawdigit/drawdigit.h"  //绘制手写体
 
 enum winType{New,Open,Cut,Draw};
 //enum Aligns{Left = 1,Center,Right,Justify};

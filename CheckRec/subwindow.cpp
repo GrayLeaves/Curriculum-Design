@@ -2,7 +2,7 @@
 #include "drawdigit/drawdigit.h"
 #include "common.h"
 #include "proc.h"
-#include "recognition/recognition.h"
+//#include "recognition/recognition.h"
 #include <string>
 #include <QtMath>
 #include <QTextStream>
@@ -370,9 +370,9 @@ void SubWindow::recognizePic()
     }
     std::string picture(curPath.toLatin1().data());
     qDebug() << picture.c_str();
-    std::string result = recognition(picture);
+    std::string result /*= recognition(picture)*/;
     if(result.size()<4 || result.size()>5)
-        textEdit->setText(QString("Wrong"));
+        textEdit->setText(QString("Unexpected."));
     else
         textEdit->setText(QString(result.c_str()));
     textEdit->setAlignment(Qt::AlignCenter);
@@ -404,7 +404,7 @@ void SubWindow::checkCode()
         if(c.isDigit()||c.isLetter())
             code += QString(c);
     }
-    if(code.size() == DEF_CODECOUNT)
+    if(code.size() == Constant::DEF_CODECOUNT)
     {
         if (codeArea->checkCode(user))
         {

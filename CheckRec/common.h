@@ -2,28 +2,12 @@
 #define COMMON_H
 
 #include <iostream>
+#include <initializer_list>
 
 const QString rsrcPath = ":/images";
 
 namespace cv {
     class Mat;
-}
-
-template<class T>
-inline const T& Max (const T& _X, const T& _Y)
-{return (_X > _Y ? _X : _Y);}
-
-template<class T>
-inline const T& Min (const T& _X, const T& _Y)
-{return (_X < _Y ? _X : _Y);}
-
-// round double to int
-inline int Round (const double& x)
-{
-    if (x > 0.0)
-        return static_cast<int>(x + 0.5);
-    else
-        return static_cast<int>(x - 0.5);
 }
 
 template<class T>
@@ -34,6 +18,17 @@ void delete_s(T *&ptr)
         delete ptr;
         ptr = 0;
     }
+}
+
+template<class T>
+const T Max (const std::initializer_list<T>& lst)
+{
+    T maxItem = *lst.begin();
+    if(lst.size() == 1) return maxItem;
+    for(auto beg = lst.begin()+1; beg != lst.end(); ++beg){
+        if(*beg > maxItem) maxItem = *beg;
+    }
+    return maxItem;
 }
 
 #endif // COMMON_H

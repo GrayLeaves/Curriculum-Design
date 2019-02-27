@@ -61,7 +61,6 @@ void MainWindow::setEnableIamgeProc(bool ok)
     invertAct->setEnabled(ok);          //反色相
     sobelAct->setEnabled(ok);           //sobel
     laplaceAct->setEnabled(ok);         //laplace
-    prewittAct->setEnabled(ok);         //prewitt
 }
 
 void MainWindow::textBold()

@@ -49,7 +49,6 @@ private slots:
     void invert();                           //像素点反色
     void laplace();                          //laplace锐化
     void sobel();                            //sobel边缘检测
-    void prewitt();                          //Prewitt边缘检测
 
     //调用子窗体执行文本操作的接口
     void undo();
@@ -164,7 +163,6 @@ private:
     QAction *invertAct = nullptr;
     QAction *sobelAct = nullptr;
     QAction *laplaceAct = nullptr;
-    QAction *prewittAct = nullptr;
     QAction *contourAct = nullptr;
     //【帮助】主菜单
     QAction *aboutAct = nullptr;          //Ctrl+H

@@ -373,10 +373,6 @@ void MainWindow::createActions() //【包含几乎所有的动作信号关联到
     laplaceAct->setStatusTip(tr("拉普拉斯锐化"));
     connect(laplaceAct, SIGNAL(triggered()), this, SLOT(laplace()));
 
-    prewittAct = new QAction(QIcon(rsrcPath + "/eye.png"),tr("prewitt边缘检测(&P)"), this);
-    prewittAct->setStatusTip(tr("prewitt边缘检测"));
-    connect(prewittAct, SIGNAL(triggered()), this, SLOT(prewitt()));
-
     /*【帮助】菜单动作集*/
     aboutAct = new QAction(QIcon(rsrcPath + "/about.png"),tr("关于(&H)"), this);
     aboutAct->setStatusTip(tr("关于 MainWindow"));
@@ -455,7 +451,6 @@ void MainWindow::createMenus()
     extractMenu->addSeparator();
     extractMenu->addAction(sobelAct);
     extractMenu->addAction(laplaceAct);
-    extractMenu->addAction(prewittAct);
 
     //【帮助】主菜单
     helpMenu = menuBar()->addMenu(tr("帮助(&H)"));
