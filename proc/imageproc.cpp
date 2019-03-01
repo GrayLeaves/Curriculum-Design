@@ -118,34 +118,47 @@ void MainWindow::NewImage()
     setEnabledText(true);              //使得字体设置菜单可用
 }
 
+void MainWindow::NewQrcode()
+{
+    winType type = Qr;
+    SubWindow *subwindow = new SubWindow(type);           //创建子窗口部件
+    mdiArea->addSubWindow(subwindow);               //多文档区域添加子窗口，作为中心部件
+    //关联子窗体的信号：关闭原有的窗口，重新导入同类型文件
+    connect(subwindow,&SubWindow::reOpenImage,this,&MainWindow::reLoadImage);
+    //根据QTextEdit类鉴别复制、剪切和复制是否可用
+    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),cutAct, SLOT(setEnabled(bool)));
+    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),copyAct, SLOT(setEnabled(bool)));
+    subwindow->newQrcode();
+    subwindow->show();
+    setEnabledText(true);              //使得字体设置菜单可用
+}
+
 void MainWindow::reLoadImage()
 {
     SubWindow * sub = activeSubWindow();
     if(sub)
     {
         winType type = sub->getCurrentWinType();
-        if(type == Open)
-        {
-            mdiArea->closeActiveSubWindow();
-            OpenImage();
-        }
-        else
-        {
-            if(type == Cut){
+        switch(type){
+            case New: case Qr: break;
+            case Open:
+                mdiArea->closeActiveSubWindow();
+                OpenImage();
+                break;
+            case Cut:
                 mdiArea->closeActiveSubWindow();
                 CutImage();
-            }
-            else{
+                break;
+            default:
                 QString fileName; //将当前图片导入到Open窗口里
                 if(sub->saveAs(fileName)){ //先保存（不能先关闭窗口，否则资源会被销毁），跳出文件浏览器窗口
                     statusBar()->showMessage(tr("保存成功"), 2000);
                     mdiArea->setActiveSubWindow(findSubWindow(fileName)); //找到这个窗口并设置为当前活动窗口
                     mdiArea->closeActiveSubWindow(); //再把它关闭才成功
-                    openFile(fileName); //在打开
+                    openFile(fileName); //再打开该类型的窗体
                 }
-            }
-        }
-    }
+      }
+   }
 }
 
 /*要打开单个文件应先判断该文件是否已被打开，即先遍历多文档子窗口中的文件，若找到则以该子窗口为活动窗口，否则加载要打开的文件*/

@@ -167,6 +167,12 @@ void MainWindow::createActions() //【包含几乎所有的动作信号关联到
     drawdigitAct->setStatusTip(tr("生成绘制手写体字符的画板"));
     connect(drawdigitAct, SIGNAL(triggered()), this, SLOT(DrawPic()));
 
+    qrcodeAct = new QAction(QIcon(rsrcPath + "/qrcode.png"), tr("创建二维码(&)"), this);
+    qrcodeAct->setShortcuts(QKeySequence::New);
+    qrcodeAct->setToolTip("创建二维码");                           //设置工具栏按钮的提示文本
+    qrcodeAct->setStatusTip(tr("创建一个生成二维码的子窗体"));
+    connect(qrcodeAct, SIGNAL(triggered()), this, SLOT(NewQrcode()));
+
     clearRecentOpened = new QAction(QIcon(rsrcPath + "/recent.png"), tr("清除记录(&)..."), this);
     clearRecentOpened->setToolTip("清除记录");
     clearRecentOpened->setStatusTip(tr("清除打开文件记录"));
@@ -393,6 +399,7 @@ void MainWindow::createMenus()
     fileMenu->addAction(openAct);
     fileMenu->addAction(screencutAct);
     fileMenu->addAction(drawdigitAct);
+    fileMenu->addAction(qrcodeAct);
 
     recentMenu = fileMenu->addMenu(tr("最近打开(&R)"));
     recentMenu->addAction(clearRecentOpened);
@@ -471,6 +478,7 @@ void MainWindow::createToolBars()
     fileToolBar->addAction(openAct);
     fileToolBar->addAction(screencutAct);
     fileToolBar->addAction(drawdigitAct);
+    fileToolBar->addAction(qrcodeAct);
     fileToolBar->addAction(saveAct);
     fileToolBar->addAction(saveAsAct);
     fileToolBar->addSeparator();        //分隔条

@@ -1,4 +1,4 @@
-#include "../proc.h"
+#include "../proc/proc.h"
 #include "../common.h"
 #include <opencv.hpp>
 #include <opencv2\opencv.hpp>

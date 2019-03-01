@@ -23,7 +23,6 @@ void SubView::generateTextCnt(){
     textEdit->setAlignment(Qt::AlignCenter);
     QFont font(QString::fromLocal8Bit("Arial"),14);
     textEdit->setFont(font);
-    //connect(comboBox,SIGNAL(activated(int)),this,SLOT(textEdit->clear()));  //关联相应的槽函数
     functionBtn = new QPushButton(tr("OK"));
     functionBtn->setFixedHeight(30);
 }
@@ -34,10 +33,10 @@ void newView::generateView(){
 
     generateTextCnt();              // 生成编辑框，提示信息组合框和按钮
     combox = new QComboBox;
-    combox->addItem(QIcon(rsrcPath + "/recognize.png"),tr("揭晓")); //0 识别
-    combox->addItem(QIcon(rsrcPath + "/check.png"),tr("校对")); //1
-    combox->addItem(QIcon(rsrcPath + "/generate.png"),tr("更新"));//2
-    combox->addItem(QIcon(rsrcPath + "/tooth.png"),tr("处理"));//3
+    combox->addItem(QIcon(rsrcPath + "/recognize.png"),tr("揭晓结果")); //0 识别
+    combox->addItem(QIcon(rsrcPath + "/check.png"),tr("校对验证码")); //1
+    combox->addItem(QIcon(rsrcPath + "/generate.png"),tr("更新验证码"));//2
+    combox->addItem(QIcon(rsrcPath + "/tooth.png"),tr("识别验证码"));//3
     combox->setFixedHeight(30);
 
     mainLayout = new QVBoxLayout; //实现布局
@@ -59,9 +58,9 @@ void openView::generateView(){
     generateTitle(); // 图形视图，生成图片像素的标签和初始化graphics/view
     generateTextCnt(); // 生成编辑框，提示信息组合框和按钮
     combox = new QComboBox;
-    combox->addItem(QIcon(rsrcPath + "/recognize.png"),tr("揭晓")); //0 识别
-    combox->addItem(QIcon(rsrcPath + "/cycle.png"),tr("还原"));//1
-    combox->addItem(QIcon(rsrcPath + "/openimage.png"),tr("替换"));//2
+    combox->addItem(QIcon(rsrcPath + "/recognize.png"),tr("识别图片中的字符")); //0 识别
+    combox->addItem(QIcon(rsrcPath + "/cycle.png"),tr("还原到最初状态"));//1
+    combox->addItem(QIcon(rsrcPath + "/openimage.png"),tr("替换这张图片"));//2
     combox->setFixedHeight(30);
 
     mainLayout = new QVBoxLayout; //实现布局
@@ -142,10 +141,10 @@ void drawView::generateView(){
     drawdigit->setFixedSize(140,180);
     generateTextCnt();
     combox = new QComboBox;
-    combox->addItem(QIcon(rsrcPath + "/recognize.png"),tr("揭晓")); //0 识别
-    combox->addItem(QIcon(rsrcPath + "/cycle.png"),tr("还原"));//1
-    combox->addItem(QIcon(rsrcPath + "/delete.png"),tr("清除")); //2
-    combox->addItem(QIcon(rsrcPath + "/sobel.png"),tr("训练"));//3
+    combox->addItem(QIcon(rsrcPath + "/recognize.png"),tr("识别绘制的字符")); //0 识别
+    combox->addItem(QIcon(rsrcPath + "/cycle.png"),tr("还原到上一张"));//1
+    combox->addItem(QIcon(rsrcPath + "/delete.png"),tr("清除这张图片")); //2
+    combox->addItem(QIcon(rsrcPath + "/sobel.png"),tr("训练绘制的图片"));//3
     combox->setFixedHeight(30);
 
     mainLayout = new QVBoxLayout;
@@ -161,4 +160,27 @@ void drawView::generateView(){
     btnLayout->addWidget(combox);                  //菜单栏
     btnLayout->addWidget(functionBtn);             //功能按钮
     mainLayout->addLayout(btnLayout);
+}
+void qrView::generateView(){
+    qrcode = new Qrcode;      // 生成二维码
+    qrcode->setFixedSize(250,250); // 指定区域，防止窗口缩放中变形
+
+    generateTextCnt();              // 生成编辑框，提示信息组合框和按钮
+    combox = new QComboBox;
+    combox->addItem(QIcon(rsrcPath + "/generate.png"),tr("生成二维码"));//2
+    combox->setFixedHeight(30);
+
+    mainLayout = new QVBoxLayout; //实现布局
+    mainLayout->addWidget(qrcode,0,Qt::AlignCenter);
+    mainLayout->setSpacing(5);
+
+    textLayout = new QHBoxLayout;
+    textLayout->addWidget(userText);                //提示信息
+    textLayout->addWidget(textEdit);                //编辑框
+    mainLayout->addLayout(textLayout);
+    btnLayout = new QHBoxLayout();
+    btnLayout->addWidget(combox);                  //菜单栏
+    btnLayout->addWidget(functionBtn);             //功能按钮
+    mainLayout->addLayout(btnLayout);
+    //resize(180,200);
 }

@@ -3,7 +3,7 @@
 #include <QWidget>
 #include "checkcode/checkcode.h"  //生成验证码
 #include "drawdigit/drawdigit.h"  //绘制手写体
-
+#include "qrcode/qrcode.h"        //绘制二维码
 class QLabel;
 class QTextEdit;
 class QComboBox;
@@ -74,5 +74,12 @@ public:
     QSpinBox *widthSpinBox = nullptr;
 protected:
     QHBoxLayout *lineWidth = nullptr;
+};
+
+class qrView : public SubView
+{
+public:
+    void generateView() override;
+    Qrcode *qrcode = nullptr;
 };
 #endif // SUBWINDOW_VIEW_H

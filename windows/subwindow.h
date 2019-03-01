@@ -14,7 +14,7 @@
 #include "checkcode/checkcode.h"  //生成验证码
 #include "drawdigit/drawdigit.h"  //绘制手写体
 
-enum winType{New,Open,Cut,Draw};
+enum winType{New,Open,Cut,Draw,Qr};
 //enum Aligns{Left = 1,Center,Right,Justify};
 
 class SubWindow : public QWidget
@@ -35,6 +35,7 @@ public:
     void newFile();                                    //新建验证码
     void cutFile();                                    //验证码屏幕截图
     void drawFile();                                   //手绘字符
+    void newQrcode(QString str = "");                                  //生成默认连接
     bool loadFile(const QString &fileName);            //从文件浏览器导入验证码
     bool save();                                       //保存新建的验证码
     bool saveAs();                                     //另存为其他格式
@@ -62,17 +63,25 @@ signals:
 
 private slots:
     void isModified();                                  //是否修改过文本标志
-    bool readPath(QString& fullPath);
-    void genLabels();
-    void showResult();
-    void recognizeCode();                               //将识别结果送到编辑框
-    void recognizePic();
-    void setCode();                                     //设置代码
-    void checkCode();                                   //用户输入验证码结果
-    void replaceCode();                                 //更换验证码
+    void recognizePic();                                //识别外源图片的结果
+    bool readPath(QString& fullPath);                   //从文本框中读取路径,以引用传递结果
+
+    void genLabels();                                   //手写体生成标签 Unused
+    void showCharRes();                                 //显示手写体识别结果 Unsed
+    void restorePreviousChar();                         //恢复到上次的绘制结果
+    void clearCurrentChar();                            //清除当前内容
+
     void zoomInOut(int);                                //放大缩小
     void zoomIn();
     void zoomOut();
+
+    void recognizeCode();                               //将识别结果送到编辑框
+    void setCode();                                     //设置代码
+    void checkCode();                                   //用户输入验证码结果
+    void replaceCode();                                 //更换验证码
+
+    void generateQrcode();                              //生成二维码
+
     void tool();                                        //下拉功能：识别、认证和生成/更换
 
 private:

@@ -52,6 +52,7 @@ void SubWindow::all_connect(winType type)
             }
             connect(view->widthSpinBox, SIGNAL(valueChanged(int)), view->drawdigit, SLOT(setWidth(int)));
         } break;
+        case Qr: break;
         default:;
     }
 }
@@ -62,6 +63,7 @@ SubView* SubWindow::createView(winType type){ //static
         case Open: view = new openView(); break;
         case Cut: view = new cutView(); break;
         case Draw: view = new drawView(); break;
+        case Qr: view = new qrView(); break;
         default:;
     }
     return view;
@@ -118,6 +120,28 @@ void SubWindow::drawFile(){
     setWindowTitle(curPath + "[*]");
     setWindowModified(true);
     //若编辑框的内容被更改时发送contentsChange()信号来执行isModified()函数
+    connect(subView->textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(isModified()));
+}
+
+void SubWindow::newQrcode(QString str)
+{
+    qrView* view = nullptr;
+    try{
+        view = dynamic_cast<qrView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
+
+    toSaveIt = false;
+    if(str.size() == 0){
+        str = "123456789";
+        subView->textEdit->clear();
+        subView->textEdit->setText(str);
+        subView->textEdit->setAlignment(Qt::AlignCenter);
+    }
+    view->qrcode->generateString(str);
+    curPath = view->qrcode->qstr();
+    setWindowTitle(curPath);
     connect(subView->textEdit->document(), SIGNAL(contentsChanged()), this, SLOT(isModified()));
 }
 
@@ -217,7 +241,7 @@ void SubWindow::genLabels(){
     delete_s(msgBox);
 }
 
-void SubWindow::showResult(){
+void SubWindow::showCharRes(){
     QString show;
     if(!toSaveIt){
         qDebug() << curPath;
@@ -237,6 +261,28 @@ void SubWindow::showResult(){
     subView->textEdit->setAlignment(Qt::AlignCenter);
 }
 
+void SubWindow::restorePreviousChar()
+{
+    drawView* view = nullptr;
+    try{
+        view = dynamic_cast<drawView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
+    view->drawdigit->restorePic();
+}
+
+void SubWindow::clearCurrentChar()
+{
+    drawView* view = nullptr;
+    try{
+        view = dynamic_cast<drawView *>(subView);
+    }catch (std::bad_cast& bc){
+        qDebug() << "bad_cast caught: " << bc.what();
+    }
+    view->drawdigit->clearPic();
+}
+
 void SubWindow::replaceCode()
 {
     if(currentWinType == New){
@@ -247,21 +293,6 @@ void SubWindow::replaceCode()
             qDebug() << "bad_cast caught: " << bc.what();
         }
         view->codeArea->replaceCodePic(); //更新验证码
-    }
-}
-//将结果送到编辑框，自定义生成的
-void SubWindow::recognizeCode()
-{
-    if(currentWinType == New){
-        newView* view = nullptr;
-        try{
-            view = dynamic_cast<newView *>(subView);
-        }catch (std::bad_cast& bc){
-            qDebug() << "bad_cast caught: " << bc.what();
-        }
-        subView->textEdit->clear();
-        subView->textEdit->setText(view->codeArea->getCode());
-        subView->textEdit->setAlignment(Qt::AlignCenter);
     }
 }
 
@@ -348,6 +379,30 @@ void SubWindow::checkCode()
     msgBox->exec();
     delete_s(msgBox);
 }
+//将结果送到编辑框，自定义生成的
+void SubWindow::recognizeCode()
+{
+    if(currentWinType == New){
+        newView* view = nullptr;
+        try{
+            view = dynamic_cast<newView *>(subView);
+        }catch (std::bad_cast& bc){
+            qDebug() << "bad_cast caught: " << bc.what();
+        }
+        subView->textEdit->clear();
+        subView->textEdit->setText(view->codeArea->getCode());
+        subView->textEdit->setAlignment(Qt::AlignCenter);
+    }
+}
+void SubWindow::generateQrcode()
+{
+    QString strText = subView->textEdit->toPlainText();
+    QTextStream ts(&strText);
+    QString code = ts.readLine();
+    newQrcode(code);
+}
+
+//==============================================================================
 //图片缩放
 void SubWindow::zoomInOut(int value)   	//缩放
 {
@@ -420,6 +475,7 @@ void SubWindow::resetZoom()   	//缩放
     view->slider->setValue(view->zoom);
 }
 
+//==========================================================================
 void SubWindow::tool()
 {
     winType type = getCurrentWinType();
@@ -428,43 +484,30 @@ void SubWindow::tool()
     {
         case 0: {
                     switch(type){
-                        case New: recognizeCode(); break;//揭晓验证码的答案
-                        case Open: case Cut: recognizePic(); break;//调用验证码识别功能
-                        case Draw: showResult();  break; //返回识别结果
+                        case New: recognizeCode(); break;           //揭晓验证码的答案
+                        case Open: case Cut: recognizePic(); break; //调用验证码识别功能
+                        case Draw: showCharRes();  break;           //返回识别结果
+                        case Qr: generateQrcode(); break;
                         default:;
                     }
                     break;
                 }
         case 1: {
                     switch(type){
-                        case New: checkCode(); break;//用户校对验证码的结果
+                        case New: checkCode(); break;               //用户校对验证码的结果
                         case Open: case Cut: restoreImage(); break; //恢复图像
-                        case Draw: {
-                            drawView* view = nullptr;
-                            try{
-                                view = dynamic_cast<drawView *>(subView);
-                            }catch (std::bad_cast& bc){
-                                qDebug() << "bad_cast caught: " << bc.what();
-                            }
-                            view->drawdigit->restorePic(); break;  }//还原到上次清除的图像
-                            default:;
-                        }
+                        case Draw: restorePreviousChar();           //还原到上次清除的图像
+                        default:;
+                    }
                     break;
                 }
         case 2: {
                     switch(type){
-                        case New: setCode(); break; //读取编辑框的信息并生成对应验证码
+                        case New: setCode(); break;                  //读取编辑框的信息并生成对应验证码
                         case Open: case Cut: changeWindows(); break; //导入图片更换窗口
-                        case Draw: {
-                                drawView* view = nullptr;
-                                try{
-                                    view = dynamic_cast<drawView *>(subView);
-                                }catch (std::bad_cast& bc){
-                                    qDebug() << "bad_cast caught: " << bc.what();
-                                }
-                                view->drawdigit->clearPic(); break;  }//清除
-                                default:;
-                            };
+                        case Draw: clearCurrentChar();               //清除当前的字符图片
+                        default:;
+                    };
                     break;
                 }
         case 3: {
@@ -510,21 +553,6 @@ void SubWindow::closeEvent(QCloseEvent *event)
         event->ignore();
     }
 }
-/*
-void SubWindow::mouseMoveEvent(QMouseEvent *event)
-{
-    //QGraphicsView 坐标
-    QPoint viewPoint = event->pos();
-    viewCoord->setText(QString::number(viewPoint.x())+","+QString::number(viewPoint.y()));
-
-    //QGraphicsScene 坐标
-    QPointF scenePoint = mapToScene(viewPoint);
-    sceneCoord->setText(QString::number(scenePoint.x())+","+QString::number(scenePoint.y()));
-
-    //图片坐标轴映射
-    QPointF location = mapToMap(scenePoint);
-    mapCoord->setText(QString::number(location.x())+","+QString::number(location.y()));
-}*/
 
 //提醒保存文件
 bool SubWindow::maybeSave()
@@ -601,6 +629,15 @@ bool SubWindow::saveFile(QString fileName)
                         qDebug() << "bad_cast caught: " << bc.what();
                     }
                     success = view->drawdigit->savePic(fileName); break;
+            }
+            case Qr:{
+                    qrView* view = nullptr;
+                    try{
+                        view = dynamic_cast<qrView *>(subView);
+                    }catch (std::bad_cast& bc){
+                        qDebug() << "bad_cast caught: " << bc.what();
+                    }
+                    success = view->qrcode->saveImage(fileName); break;
             }
             default : qDebug() << "Unknown Windows Type.";
         }

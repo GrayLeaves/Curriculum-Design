@@ -34,6 +34,7 @@ private slots:
     void OpenImage();                        //打开图片
     void CutImage();                         //截屏操作
     void DrawPic();                          //绘制手写体
+    void NewQrcode();                        //生成二维码
     void SaveImage();                        //保存
     void SaveImageAs();                      //另存
     QString getUserName();                   //获取用户名
@@ -121,6 +122,7 @@ private:
     QAction *openAct = nullptr;           //Ctrl+O
     QAction *screencutAct = nullptr;      //Ctrl+K
     QAction *drawdigitAct = nullptr;
+    QAction *qrcodeAct = nullptr;
     QAction *clearRecentOpened = nullptr;
     QAction *saveAct = nullptr;           //Ctrl+S
     QAction *saveAsAct = nullptr;         //Ctrl+A
