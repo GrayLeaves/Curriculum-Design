@@ -30,7 +30,7 @@ INCLUDEPATH += D:/opencv/build/include \
                D:/opencv/build/include/opencv2 \
 
 #LIBS += $$PWD/bin/libopencv_*.dll \			   
-LIBS += D:/Qt/OpenCV_Build/install/x86/mingw/bin/libopencv_*.dll \
+LIBS += $$PWD/libs/bin/libopencv_*.dll \
         $$PWD/qrcode/qrcodelib.dll \
         $$PWD/qrcode/qrcodelib.lib
         # $$PWD/recognition/classification_dll.lib
@@ -48,7 +48,8 @@ SOURCES += main.cpp\
     drawdigit/drawdigit.cpp \
     drawdigit/trainwithtest.cpp \
     windows/subwindow_view.cpp \
-    qrcode/qrcode.cpp
+    qrcode/qrcode.cpp \
+    menu/main_menu.cpp
 
 HEADERS  += windows/mainwindow.h \
     windows/subwindow.h \
@@ -61,7 +62,8 @@ HEADERS  += windows/mainwindow.h \
     ui_mainwindow.h \
     drawdigit/drawdigit.h \
     windows/subwindow_view.h \
-    qrcode/qrcode.h
+    qrcode/qrcode.h \
+    menu/main_menu.h
     qrcode/qrencode.h
 #qt designer -- no use
 FORMS    += mainwindow.ui

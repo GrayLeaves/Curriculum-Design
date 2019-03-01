@@ -34,39 +34,39 @@ void MainWindow::paste()
 
 void MainWindow::setEnabledText(bool ok)
 {
-    boldAct->setEnabled(ok);            //加粗
-    italicAct->setEnabled(ok);          //倾斜
-    underlineAct->setEnabled(ok);       //下划线
-    leftAlignAct->setEnabled(ok);       //居左
-    centerAct->setEnabled(ok);          //居中
-    rightAlignAct->setEnabled(ok);      //居右
-    justifyAct->setEnabled(ok);         //调整
-    colorAct->setEnabled(ok);           //颜色
+    formatMenu->boldAct->setEnabled(ok);            //加粗
+    formatMenu->italicAct->setEnabled(ok);          //倾斜
+    formatMenu->underlineAct->setEnabled(ok);       //下划线
+    formatMenu->leftAlignAct->setEnabled(ok);       //居左
+    formatMenu->centerAct->setEnabled(ok);          //居中
+    formatMenu->rightAlignAct->setEnabled(ok);      //居右
+    formatMenu->justifyAct->setEnabled(ok);         //调整
+    formatMenu->colorAct->setEnabled(ok);           //颜色
 }
 void MainWindow::setEnabledSwitch(bool ok)
 {
-    closeAct->setEnabled(ok);
-    closeAllAct->setEnabled(ok);
-    tileAct->setEnabled(ok);
-    cascadeAct->setEnabled(ok);
-    nextAct->setEnabled(ok);
-    previousAct->setEnabled(ok);
-    separatorAct->setVisible(ok);
+    windowMenu->closeAct->setEnabled(ok);
+    windowMenu->closeAllAct->setEnabled(ok);
+    windowMenu->tileAct->setEnabled(ok);
+    windowMenu->cascadeAct->setEnabled(ok);
+    windowMenu->nextAct->setEnabled(ok);
+    windowMenu->previousAct->setEnabled(ok);
+    windowMenu->separatorAct->setVisible(ok);
 }
 void MainWindow::setEnableIamgeProc(bool ok)
 {
-    drawHstgrmAct->setEnabled(ok);      //直方图
-    greyScaleAct->setEnabled(ok);       //灰度化
-    binaryzationAct->setEnabled(ok);    //二值化
-    invertAct->setEnabled(ok);          //反色相
-    sobelAct->setEnabled(ok);           //sobel
-    laplaceAct->setEnabled(ok);         //laplace
+    extractMenu->drawHstgrmAct->setEnabled(ok);      //直方图
+    extractMenu->greyScaleAct->setEnabled(ok);       //灰度化
+    extractMenu->binaryzationAct->setEnabled(ok);    //二值化
+    extractMenu->invertAct->setEnabled(ok);          //反色相
+    extractMenu->sobelAct->setEnabled(ok);           //sobel
+    extractMenu->laplaceAct->setEnabled(ok);         //laplace
 }
 
 void MainWindow::textBold()
 {
     QTextCharFormat fmt;
-    fmt.setFontWeight(boldAct->isChecked() ? QFont::Bold : QFont::Normal);
+    fmt.setFontWeight(formatMenu->boldAct->isChecked() ? QFont::Bold : QFont::Normal);
     if(activeSubWindow())
         activeSubWindow()->mergeFormat(fmt);
 }
@@ -74,7 +74,7 @@ void MainWindow::textBold()
 void MainWindow::textItalic()
 {
     QTextCharFormat fmt;
-    fmt.setFontItalic(italicAct->isChecked());
+    fmt.setFontItalic(formatMenu->italicAct->isChecked());
     if(activeSubWindow())
         activeSubWindow()->mergeFormat(fmt);
 }
@@ -82,7 +82,7 @@ void MainWindow::textItalic()
 void MainWindow::textUnderline()
 {
     QTextCharFormat fmt;
-    fmt.setFontUnderline(underlineAct->isChecked());
+    fmt.setFontUnderline(formatMenu->underlineAct->isChecked());
     if(activeSubWindow())
         activeSubWindow()->mergeFormat(fmt);
 }
@@ -91,13 +91,13 @@ void MainWindow::textAlign(QAction *a)
 {
     if(activeSubWindow())
     {
-        if (a == leftAlignAct)
+        if (a == formatMenu->leftAlignAct)
             activeSubWindow()->setAlign(1);
-        else if (a == centerAct)
+        else if (a == formatMenu->centerAct)
             activeSubWindow()->setAlign(2);
-        else if (a == rightAlignAct)
+        else if (a == formatMenu->rightAlignAct)
             activeSubWindow()->setAlign(3);
-        else if (a == justifyAct)
+        else if (a == formatMenu->justifyAct)
             activeSubWindow()->setAlign(4);
     }
 }
@@ -105,16 +105,16 @@ void MainWindow::textAlign(QAction *a)
 void MainWindow::windowStyle(QAction *s)
 {
     //0-"Windows" 1-"WindowsXP" 2-"WindowsVista" 3-"Fusion"
-   if (s == WindowsAct){
+   if (s == formatMenu->WindowsAct){
        QApplication::setStyle(QStyleFactory::create("Windows"));      //设置内置风格
    }
-   else if (s == WindowsXPAct){
+   else if (s == formatMenu->WindowsXPAct){
        QApplication::setStyle(QStyleFactory::create("WindowsXP"));    //设置内置风格
    }
-   else if (s == WindowsVistaAct){
+   else if (s == formatMenu->WindowsVistaAct){
        QApplication::setStyle(QStyleFactory::create("WindowsVista")); //设置内置风格
    }
-   else if (s == FusionAct){
+   else if (s == formatMenu->FusionAct){
        QApplication::setStyle(QStyleFactory::create("Fusion"));       //设置内置风格
    }
 
@@ -159,41 +159,41 @@ void MainWindow::fontChanged(const QFont &f)
 {
     comboFont->setCurrentIndex(comboFont->findText(QFontInfo(f).family()));
     comboSize->setCurrentIndex(comboSize->findText(QString::number(f.pointSize())));
-    boldAct->setChecked(f.bold());
-    italicAct->setChecked(f.italic());
-    underlineAct->setChecked(f.underline());
+    formatMenu->boldAct->setChecked(f.bold());
+    formatMenu->italicAct->setChecked(f.italic());
+    formatMenu->underlineAct->setChecked(f.underline());
 }
 
 void MainWindow::colorChanged(const QColor &c)
 {
     QPixmap pix(28, 28);
     pix.fill(c);
-    colorAct->setIcon(pix);
+    formatMenu->colorAct->setIcon(pix);
 }
 
 void MainWindow::alignmentChanged(Qt::Alignment a)
 {
     if (a & Qt::AlignLeft)
-        leftAlignAct->setChecked(true);
+        formatMenu->leftAlignAct->setChecked(true);
     else if (a & Qt::AlignHCenter)
-        centerAct->setChecked(true);
+        formatMenu->centerAct->setChecked(true);
     else if (a & Qt::AlignRight)
-        rightAlignAct->setChecked(true);
+        formatMenu->rightAlignAct->setChecked(true);
     else if (a & Qt::AlignJustify)
-        justifyAct->setChecked(true);
+        formatMenu->justifyAct->setChecked(true);
 }
 
 void MainWindow::styleChanged(QString style)
 {
     //0-"Windows" 1-"WindowsXP" 2-"WindowsVista" 3-"Fusion"
     if (style == "Windows")
-        WindowsAct->setChecked(true);
+        formatMenu->WindowsAct->setChecked(true);
     else if (style == "WindowsXP")
-        WindowsXPAct->setChecked(true);
+        formatMenu->WindowsXPAct->setChecked(true);
     else if (style == "WindowsVista")
-        WindowsVistaAct->setChecked(true);
+        formatMenu->WindowsVistaAct->setChecked(true);
     else if (style == "Fusion")
-        FusionAct->setChecked(true);
+        formatMenu->FusionAct->setChecked(true);
 }
 
 void MainWindow::textChangedUpdate()

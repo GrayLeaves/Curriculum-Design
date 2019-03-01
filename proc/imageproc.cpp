@@ -31,9 +31,11 @@ void SubWindow::updateImage(const QPixmap &pix)
    pixmapItem = view->scene->addPixmap(pix);                      //显示导入的验证码
    view->scene->setSceneRect(QRectF(pix.rect()));                  //设置显示大小
    view->gview->setScene(view->scene);
-   qDebug() << "depth:" << pix.depth();
-   qDebug() << "hasAlpha:" << pix.hasAlpha();
-   qDebug() << "repaintScene"  << view->scene->items().count();
+   view->zoom = 50.0;                   //因为是还原到最初的图片，故zoom=50.0
+   view->slider->setValue(view->zoom);  //触发进度条更新操作
+   //qDebug() << "depth:" << pix.depth();
+   //qDebug() << "hasAlpha:" << pix.hasAlpha();
+   //qDebug() << "repaintScene"  << view->scene->items().count();
 }
 
 void SubWindow::restoreImage()
@@ -111,8 +113,8 @@ void MainWindow::NewImage()
     //关联子窗体的信号：关闭原有的窗口，重新导入同类型文件
     connect(subwindow,&SubWindow::reOpenImage,this,&MainWindow::reLoadImage);
     //根据QTextEdit类鉴别复制、剪切和复制是否可用
-    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),cutAct, SLOT(setEnabled(bool)));
-    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),copyAct, SLOT(setEnabled(bool)));
+    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),editMenu->cutAct, SLOT(setEnabled(bool)));
+    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),editMenu->copyAct, SLOT(setEnabled(bool)));
     subwindow->newFile();
     subwindow->show();
     setEnabledText(true);              //使得字体设置菜单可用
@@ -126,8 +128,8 @@ void MainWindow::NewQrcode()
     //关联子窗体的信号：关闭原有的窗口，重新导入同类型文件
     connect(subwindow,&SubWindow::reOpenImage,this,&MainWindow::reLoadImage);
     //根据QTextEdit类鉴别复制、剪切和复制是否可用
-    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),cutAct, SLOT(setEnabled(bool)));
-    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),copyAct, SLOT(setEnabled(bool)));
+    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),editMenu->cutAct, SLOT(setEnabled(bool)));
+    connect(subwindow->subView->textEdit, SIGNAL(copyAvailable(bool)),editMenu->copyAct, SLOT(setEnabled(bool)));
     subwindow->newQrcode();
     subwindow->show();
     setEnabledText(true);              //使得字体设置菜单可用
@@ -140,7 +142,7 @@ void MainWindow::reLoadImage()
     {
         winType type = sub->getCurrentWinType();
         switch(type){
-            case New: case Qr: break;
+            // case New: case Qr: break;
             case Open:
                 mdiArea->closeActiveSubWindow();
                 OpenImage();
